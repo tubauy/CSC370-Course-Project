@@ -1,7 +1,7 @@
 CREATE TABLE Motherboards(
     `name` varchar(256) PRIMARY KEY,
     `socket` varchar(64),
-    `ddr_version` int;
+    `ddr_version` int
 );
 
 CREATE TABLE RAM(
