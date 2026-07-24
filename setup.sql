@@ -59,5 +59,6 @@ CREATE TABLE GPU(
     `clock_speed_MHz` int,
     `vram_GB` int,
     `vram_type` varchar(16),
-    `PCIe_type` varchar(16)
+    `PCIe_gen` float,
+    `PCIe_lanes` int,
 );
