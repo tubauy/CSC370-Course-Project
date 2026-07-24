@@ -51,4 +51,4 @@ CREATE TABLE Storage(
     `interface` varchar(32),
     `cache_MB` int,
     `nvme` boolean
-)
+);
