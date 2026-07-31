@@ -1,3 +1,4 @@
+-- TODO: make new schema for localhost testing server
 CREATE TABLE Motherboards(
     `component_id` int PRIMARY KEY,
     `name` varchar(128),

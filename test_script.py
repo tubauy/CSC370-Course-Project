@@ -2,6 +2,7 @@ import mysql.connector
 import os # for .env
 
 # load all .env variables into os.environ
+# TODO: change .env file to localhost for testing purposes
 with open(".env", "r") as file:
     for line in file:
         line = line.strip()
