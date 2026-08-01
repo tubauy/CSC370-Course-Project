@@ -17,7 +17,7 @@ CREATE TABLE Components(
     ),
     `name` VARCHAR(255),
     `manufacturer` VARCHAR(255),
-    `pirce` FLOAT,
+    `price` FLOAT,
     `release_date` DATE
 )
 
