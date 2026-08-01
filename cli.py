@@ -26,7 +26,7 @@ def get_priority():
     """
     priorities=[]
     # added new parts here for testing, file not complete, not ready yet
-    comps_to_pick = ["Motherboard", "CPU", "GPU" "RAM", "storage"]
+    comps_to_pick = ["Motherboard", "CPU", "GPU", "RAM", "storage"]
 
     print(priority_message)
     while len(comps_to_pick)>0:

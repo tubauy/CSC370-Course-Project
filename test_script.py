@@ -71,6 +71,10 @@ for cpu in cpu_list:
 
 # need type check
 selection = int(input("Type CPU id to select: "))
+# May have id's with large numbers due to auto-increment
+#id of part may be 7, 8, 12, etc, so should make selection test
+#agnostic of specific id that part has, so the user inputs the correct number
+#i.e we want user to input 1, 2, 3, etc
 print(f"You selected CPU {selection}: {cpu_list[selection][1]}")
 
 compatible_motherboards = []

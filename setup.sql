@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS `GPU` (
 
 
 CREATE TABLE IF NOT EXISTS `User Configurations` (
-	`Config_id` INTEGER AUTO_INCREMENT COMMENT 
+	`Config_id` INTEGER AUTO_INCREMENT,
     /* So a config can be mapped to a specific user, for them alone to view and edit.
         Shouldn't map same config to multiple users, 
         because a user should not be able to edit others config, 
