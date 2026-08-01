@@ -25,7 +25,8 @@ def get_priority():
     Please select what component is most important to you:
     """
     priorities=[]
-    comps_to_pick = ["motherboard", "cpu", "ram", "storage"]
+    # added new parts here for testing, file not complete, not ready yet
+    comps_to_pick = ["Motherboard", "CPU", "GPU" "RAM", "storage"]
 
     print(priority_message)
     while len(comps_to_pick)>0:
