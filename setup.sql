@@ -4,7 +4,6 @@ CREATE TABLE Manufacturers(
     `address` VARCHAR(255)
 )
 
-
 -- Component table holds meta data for all components --
 CREATE TABLE Components(
     `component_id` int AUTO_INCREMENT PRIMARY KEY,
