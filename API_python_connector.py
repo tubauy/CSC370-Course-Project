@@ -33,9 +33,3 @@ def setup():
 
 
 
-
-cursor.close()
-connection.close()
-
-
-

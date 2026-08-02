@@ -1,5 +1,6 @@
 #class to track current user config
 #passed a mysqlconnector connection object to use
+#TODO: make sure inputs are sanitized
 import mysql.connector
 class CurrentBuild:
     #class variable of WHERE conditions
@@ -43,7 +44,6 @@ class CurrentBuild:
         }
 
         self.connection = DBconnection
-        self.not_yet_picked = ["Motherboards", "CPU", "GPU", "RAM", "Storage"]
 
 
     def test_output(self):
@@ -100,7 +100,6 @@ class CurrentBuild:
                 result = list(cursor.fetchall())
                 return result
 
-    #placeholder function for first pick generalize other functions later?
     def first_pick_test(self, category):
         #return list of tuples
         result = None
@@ -108,7 +107,7 @@ class CurrentBuild:
             query = f"SELECT `{category}`.`component_id`,`{category}`.`name` FROM {category}"
             cursor.execute(query)
             result = list(cursor.fetchall())
-        return result
+            return result
 
 
 
