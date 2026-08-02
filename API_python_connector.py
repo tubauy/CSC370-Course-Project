@@ -1,4 +1,5 @@
-# seprate file to house mysql-connector setup, called from CLI
+# seprate file to house mysql-connector setup, to be called from CLI
+#TODO: refactor this file to prepare for CLI integration
 import mysql.connector
 import os # for .env
 
