@@ -40,7 +40,8 @@ class CurrentBuild:
         #test output from DB
         #make cursor
         with self.connection.cursor() as cursor:
-            query = "SELECT * FROM `CPU`"
+            #query = f"SELECT * FROM `CPU` WHERE `component_id` = {self.picked_items_id["CPU"]}"
+            query = f'SELECT `RAM`.`component_id`, `RAM`.`name` FROM `RAM` JOIN (SELECT * FROM `CPU` WHERE `CPU`.`component_id` = {self.picked_items_id['CPU']}) AS p1 ON (`p1`.`ddr_version` = `RAM`.`ddr_version` AND `p1`.`max_ram_capacity_MB` >= `RAM`.`capacity_MB`) '
             cursor.execute(query)
             return(list(cursor.fetchall()))
 
@@ -65,28 +66,28 @@ class CurrentBuild:
             #loop through already picked items and run query for each, based on appropiate condition
             #return list of tuples
             result = None #for now
-            start_query = f"SELECT `{type_to_output}`.`component_id`, `{type_to_output}`.`name` FROM `{type_to_output}` JOIN"
+            start_query = f"SELECT `{type_to_output}`.`component_id`, `{type_to_output}`.`name` FROM `{type_to_output}` JOIN "
 
             #get list of items already picked
             current_picked = [k for k, v in self.picked_items_id.items() if v is not None]
-            query_commands = []
+            #query_commands = []
             #put commands in list fist then use string.join(list) function for debugging purposes
-            query_commands.append(start_query)
+            #query_commands.append(start_query)
             with self.connection.cursor() as cursor:
                 count = 1
                 for k in current_picked:
                     #get table of parts with that id, all attributes
-                    query_commands.append(f"(SELECT * FROM `{k}` WHERE `{k}.`component_id` = {self.picked_items_id[k]}) AS p{count}")
+                    start_query += f"(SELECT * FROM `{k}` WHERE `{k}`.`component_id` = {self.picked_items_id[k]}) AS p{count} "
 
                     #join this table (holding one specific part) with table of type_to_output
                     #TODO: allow for insertion of alias into on condition taken from join_conditions_dict (CRITICAL)
-                    on_condition = f"{self.join_conditions_dict[(k,type_to_output)]}"
-                    query_commands.append(on_condition.replace(k, f"p{count}"))
+                    on_condition = f"{self.join_conditions_dict[(k,type_to_output)]} "
+                    start_query += on_condition.replace(k, f"p{count}")
                     count += 1
-                final_query = " ".join(query_commands)
-                cursor.execute(final_query)
+                #final_query = " ".join(query_commands)
+                cursor.execute(start_query)
                 result = list(cursor.fetchall())
-            return result
+                return result
 
     #placeholder function for first pickm generalize later
     def first_pick_test(self, category):
