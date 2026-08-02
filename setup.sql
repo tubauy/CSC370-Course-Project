@@ -12,22 +12,22 @@ CREATE TABLE Configurations(
         ON DELETE CASCADE
         ON UPDATE CASCADE,
     -- Component IDs --
-    `motherboard_id` INT REFERENCES `Motherboards`(`component_id`)
+    `motherboard_id` INT REFERENCES `Components`(`component_id`)
         ON DELETE SET NULL
         ON UPDATE SET NULL,
-    `ram_id` INT REFERENCES `RAM`(`component_id`)
+    `ram_id` INT REFERENCES `Components`(`component_id`)
         ON DELETE SET NULL
         ON UPDATE SET NULL,
-    `cpu_id` INT REFERENCES `CPUs`(`component_id`)
+    `cpu_id` INT REFERENCES `Components`(`component_id`)
         ON DELETE SET NULL
         ON UPDATE SET NULL,
-    `storage_id` INT REFERENCES `Storage`(`component_id`)
+    `storage_id` INT REFERENCES `Components`(`component_id`)
         ON DELETE SET NULL
         ON UPDATE SET NULL,
-    `gpu_id` INT REFERENCES `GPUs`(`component_id`)
+    `gpu_id` INT REFERENCES `Components`(`component_id`)
         ON DELETE SET NULL
         ON UPDATE SET NULL,
-    `psu_id` INT REFERENCES `PSUs`(`component_id`)
+    `psu_id` INT REFERENCES `Components`(`component_id`)
         ON DELETE SET NULL
         ON UPDATE SET NULL,
 )
