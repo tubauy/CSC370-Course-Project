@@ -122,7 +122,11 @@ class CurrentBuild:
             #loop through already picked items and run query for each, based on appropiate condition
             #return list of tuples
             query = ""
+            #get list of items already picked
+            already_picked = [k for k, v in self.picked_items_id.items() if v is not None]
             with self.connection.cursor() as cursor:
+                for k in already_picked:
+                    break
                 pass
 
 
