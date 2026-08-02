@@ -76,7 +76,7 @@ class CurrentBuild:
                 count = 1
                 for k in current_picked:
                     #get table of parts with that id, all attributes
-                    query_commands.append(f"(SELECT * FROM `{k}` WHERE `{k}.`component_id` = {self.picked_items_id[k]}) as p{count}")
+                    query_commands.append(f"(SELECT * FROM `{k}` WHERE `{k}.`component_id` = {self.picked_items_id[k]}) AS p{count}")
 
                     #join this table (holding one specific part) with table of type_to_output
                     #TODO: allow for insertion of alias into on condition taken from join_conditions_dict (CRITICAL)
