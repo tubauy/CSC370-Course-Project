@@ -44,9 +44,21 @@ def get_priority():
         priorities.append(comps_to_pick.pop(selection-1))
     return priorities
 
+#takes set of current picks and adds to it
+def next_pick():
+    pass 
+
 def build_from_scratch_option():
     priority_list = get_priority()
     # run the algorithm for the items in the list in order
+    #given type picked, run sql query and show results
+    #ask user to pick specific part, add to picks_dict
+
+    #ask what category to pick next, given type picked run query, so on
+    #should picked dict be outside this specific function, so that it can be reused?
+
+
+
 
 def search_option():
     search_funcs = []
