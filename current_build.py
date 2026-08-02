@@ -2,6 +2,23 @@
 #passed a mysqlconnector connection object to use
 import mysql.connector
 class CurrentBuild:
+    #class variable of join condtions
+    #be careful of mirrored tuples, must be cleaned up before using dict
+    #TODO fill in missing conditions if applicable
+    #TODO keep empty strings where no compatability rules exist?
+    join_conditions_dict = {
+        ("CPU","Motherboards"): "ON (`CPU`.`socket_type` = `Motherboards`.`Socket_type)",
+        ("CPU","GPU"):"",
+        ("CPU","RAM"): "ON (`CPU`.`ddr_version` = `RAM`.`ddr_version` AND `CPU`.`max_ram_capacity_MB` >= `RAM`.`capacity_MB`)",
+        ("CPU","Storage"):"",
+        ("Motherboards","GPU"):"",
+        ("Motherboards","RAM"): "ON (`Motherboards`.`ddr_version` = `RAM`.`ddr_version`)",
+        ("Motherboards","Storage"):"",
+        ("GPU","RAM"):"",
+        ("GPU","Storage"):"",
+        ("RAM","Storage"):""
+    }
+
     def __init__(self, DBconnection):
         #for now, passing connection object instead of cursor
         #allow custom set of parts, i.e add psu or multple storage?
