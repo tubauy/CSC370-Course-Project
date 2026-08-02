@@ -24,8 +24,9 @@ connection = mysql.connector.connect(
 
 new_build = CurrentBuild(connection)
 
-print(new_build.test_output())
 
+#print(new_build.test_output())
+print(new_build.first_pick_test("CPU"))
 
 connection.close()
 # global variables for now
