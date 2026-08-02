@@ -6,18 +6,28 @@ class CurrentBuild:
     #first item in tuple is item already picked, second is relation to be searched
     #TODO fill in missing conditions if applicable
     #TODO keep empty strings where no compatability rules exist?
-    #TODO account for mirrored tuples
+    #TODO account for mirrored tuples (for now hardcoding mirrors)
     join_conditions_dict = {
-        ("CPU","Motherboards"): "ON (`CPU`.`socket_type` = `Motherboards`.`Socket_type)",
+        ("CPU","Motherboards"): "ON (`CPU`.`socket_type` = `Motherboards`.`socket_type`)",
+        ("Motherboards","CPU"): "ON (`CPU`.`socket_type` = `Motherboards`.`socket_type)",
         ("CPU","GPU"):"",
+        ("GPU","CPU"):"",
         ("CPU","RAM"): "ON (`CPU`.`ddr_version` = `RAM`.`ddr_version` AND `CPU`.`max_ram_capacity_MB` >= `RAM`.`capacity_MB`)",
+        ("RAM","CPU"): "ON (`CPU`.`ddr_version` = `RAM`.`ddr_version` AND `CPU`.`max_ram_capacity_MB` >= `RAM`.`capacity_MB`)",
         ("CPU","Storage"):"",
+        ("Storage","CPU"):"",
         ("Motherboards","GPU"):"",
+        ("GPU","Motherboards"):"",
         ("Motherboards","RAM"): "ON (`Motherboards`.`ddr_version` = `RAM`.`ddr_version`)",
+        ("RAM","Motherboards"): "ON (`Motherboards`.`ddr_version` = `RAM`.`ddr_version`)",
         ("Motherboards","Storage"):"",
+        ("Storage","Motherboards"):"",
         ("GPU","RAM"):"",
+        ("RAM","GPU"):"",
         ("GPU","Storage"):"",
-        ("RAM","Storage"):""
+        ("Storage","GPU"):"",
+        ("RAM","Storage"):"",
+        ("Storage","RAM"):""
     }
 
     def __init__(self, DBconnection):
@@ -66,7 +76,7 @@ class CurrentBuild:
             #loop through already picked items and run query for each, based on appropiate condition
             #return list of tuples
             result = None #for now
-            start_query = f"SELECT `{type_to_output}`.`component_id`, `{type_to_output}`.`name` FROM `{type_to_output}` JOIN "
+            start_query = f"SELECT `{type_to_output}`.`component_id`, `{type_to_output}`.`name` FROM `{type_to_output}` "
 
             #get list of items already picked
             current_picked = [k for k, v in self.picked_items_id.items() if v is not None]
@@ -77,6 +87,7 @@ class CurrentBuild:
                 count = 1
                 for k in current_picked:
                     #get table of parts with that id, all attributes
+                    start_query += "JOIN "
                     start_query += f"(SELECT * FROM `{k}` WHERE `{k}`.`component_id` = {self.picked_items_id[k]}) AS p{count} "
 
                     #join this table (holding one specific part) with table of type_to_output
@@ -89,7 +100,7 @@ class CurrentBuild:
                 result = list(cursor.fetchall())
                 return result
 
-    #placeholder function for first pickm generalize later
+    #placeholder function for first pick generalize other functions later?
     def first_pick_test(self, category):
         #return list of tuples
         result = None

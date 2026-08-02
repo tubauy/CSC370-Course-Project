@@ -24,16 +24,17 @@ connection = mysql.connector.connect(
 
 new_build = CurrentBuild(connection)
 
-new_build.add_part_test("CPU", 16) #hardcoded value for testing only
-
+#new_build.add_part_test("CPU", 16) #hardcoded value for testing only
+#print(new_build.output_compatible("RAM"))
 
 #print(new_build.test_output())
 
 #print(new_build.first_pick_test("CPU"))
 
+new_build.add_part_test("RAM", 13)
+new_build.add_part_test("CPU", 16)
+print(new_build.output_compatible("Motherboards"))
 
-
-print(new_build.output_compatible("RAM"))
 
 connection.close()
 # global variables for now
