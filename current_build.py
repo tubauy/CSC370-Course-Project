@@ -6,7 +6,7 @@ class CurrentBuild:
     #first item in tuple is item already picked, second is relation to be searched
     #TODO fill in missing conditions if applicable
     #TODO keep empty strings where no compatability rules exist?
-    #TODO parse mirrored tuples so they don't have to be included
+    #TODO account for mirrored tuples
     join_conditions_dict = {
         ("CPU","Motherboards"): "ON (`CPU`.`socket_type` = `Motherboards`.`Socket_type)",
         ("CPU","GPU"):"",
@@ -48,7 +48,7 @@ class CurrentBuild:
 
     def already_picked(self, type):
         #output true/false if already picked part of that type
-        if(self.picked_items_id["type"] is None):
+        if(self.picked_items_id[type] is None):
             return False
         else:
             return True
@@ -58,7 +58,7 @@ class CurrentBuild:
         #gets sanitized input
         #returns list of tuples
         #TODO: account for mirrored tuples
-        if(self.already_picked):
+        if(self.already_picked(type_to_output)):
             return []
         else:
             #run query
@@ -70,6 +70,7 @@ class CurrentBuild:
             #get list of items already picked
             current_picked = [k for k, v in self.picked_items_id.items() if v is not None]
             query_commands = []
+            #put commands in list fist then use string.join(list) function for debugging purposes
             query_commands.append(start_query)
             with self.connection.cursor() as cursor:
                 count = 1
@@ -78,7 +79,8 @@ class CurrentBuild:
                     query_commands.append(f"(SELECT * FROM `{k}` WHERE `{k}.`component_id` = {self.picked_items_id[k]}) as p{count}")
 
                     #join this table (holding one specific part) with table of type_to_output
-                    query_commands.append(f"{join_conditions_dict[k,type_to_output]}")
+                    #TODO: allow for insertion of alias into on condition taken from join_conditions_dict (CRITICAL)
+                    query_commands.append(f"{self.join_conditions_dict[(k,type_to_output)]}")
                     count += 1
                 final_query = " ".join(query_commands)
                 cursor.execute(final_query)
@@ -97,13 +99,14 @@ class CurrentBuild:
 
 
 
-    def addPart(self,type, partId: int, category):
+    def add_part_test(self,category, partId: int):
         #add given part id to the current set
         #check if part of that type already picked
         #check compatability as well
         #for now, indicate category as well
         if(not self.already_picked(category)):
-            picked_items_id[category] = partId
+            self.picked_items_id[category] = partId
+            #TODO: check if that part is in database? Check with configurations table?
         else:
             pass
             #throw error here?

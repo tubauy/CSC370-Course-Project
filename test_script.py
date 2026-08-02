@@ -26,7 +26,10 @@ new_build = CurrentBuild(connection)
 
 
 #print(new_build.test_output())
-print(new_build.first_pick_test("CPU"))
+
+#print(new_build.first_pick_test("CPU"))
+new_build.add_part_test("CPU", 13)
+print(new_build.output_compatible("RAM"))
 
 connection.close()
 # global variables for now
