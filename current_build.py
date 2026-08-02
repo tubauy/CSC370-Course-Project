@@ -30,8 +30,8 @@ class CurrentBuild:
             "Storage": None
         }
 
-
         self.connection = DBconnection
+        self.not_yet_picked = []
 
 
     def test_output(self):
@@ -54,12 +54,15 @@ class CurrentBuild:
     def output_compatible(self, type_to_output):
         #output parts of the chosen type compatible with current build
         #gets sanitized input
+        result = ""
         if(already_picked):
-            return ""
+            return result
         else:
             #run query
-            #loop through picked_items and run query for each, based on appropiate condition
-            pass
+            #loop through already picked items and run query for each, based on appropiate condition
+            #return list of tuples
+            with self.connection.cursor() as cursor:
+                pass
 
 
     #def addPart(self,type, partId: int):
