@@ -80,7 +80,8 @@ class CurrentBuild:
 
                     #join this table (holding one specific part) with table of type_to_output
                     #TODO: allow for insertion of alias into on condition taken from join_conditions_dict (CRITICAL)
-                    query_commands.append(f"{self.join_conditions_dict[(k,type_to_output)]}")
+                    on_condition = f"{self.join_conditions_dict[(k,type_to_output)]}"
+                    query_commands.append(on_condition.replace(k, f"p{count}"))
                     count += 1
                 final_query = " ".join(query_commands)
                 cursor.execute(final_query)
