@@ -70,10 +70,9 @@ class CurrentBuild:
 
     def output_compatible(self, type_to_output):
         #output parts of the chosen type compatible with current build
-        #gets sanitized input
         #returns list of tuples
         #TODO: account for mirrored tuples
-        if(self.already_picked(type_to_output)):
+        if(type_to_output not in self.picked_items_id or self.already_picked(type_to_output)):
             return []
         else:
             #run query
