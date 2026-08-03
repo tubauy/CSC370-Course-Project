@@ -8,9 +8,10 @@ class CurrentBuild:
     #TODO fill in missing conditions if applicable
     #TODO keep empty strings where no compatability rules exist?
     #TODO account for mirrored tuples (for now hardcoding mirrors)
+    #TODO add indexes in DB to speed joins
     join_conditions_dict = {
         ("CPU","Motherboards"): "ON (`CPU`.`socket_type` = `Motherboards`.`socket_type`)",
-        ("Motherboards","CPU"): "ON (`CPU`.`socket_type` = `Motherboards`.`socket_type)",
+        ("Motherboards","CPU"): "ON (`CPU`.`socket_type` = `Motherboards`.`socket_type`)",
         ("CPU","GPU"):"",
         ("GPU","CPU"):"",
         ("CPU","RAM"): "ON (`CPU`.`ddr_version` = `RAM`.`ddr_version` AND `CPU`.`max_ram_capacity_MB` >= `RAM`.`capacity_MB`)",
@@ -43,6 +44,7 @@ class CurrentBuild:
             "Storage": None
         }
 
+        #always stored picked_items in SQL server to avoid data corruption issues?
         self.connection = DBconnection
 
 
@@ -100,14 +102,14 @@ class CurrentBuild:
                 result = list(cursor.fetchall())
                 return result
 
-    def first_pick_test(self, category):
+    #def first_pick_test(self, category):
         #return list of tuples
-        result = None
-        with self.connection.cursor() as cursor:
-            query = f"SELECT `{category}`.`component_id`,`{category}`.`name` FROM {category}"
-            cursor.execute(query)
-            result = list(cursor.fetchall())
-            return result
+        #result = None
+        #with self.connection.cursor() as cursor:
+            #query = f"SELECT `{category}`.`component_id`,`{category}`.`name` FROM {category}"
+            #cursor.execute(query)
+            #result = list(cursor.fetchall())
+            #return result
 
 
 
@@ -126,7 +128,8 @@ class CurrentBuild:
 
 
     def exit_and_save(self):
-        #save current config to DB and exit
+        #save current config to DB Configurations table and exit
+        #destructor method?
         pass
     
     

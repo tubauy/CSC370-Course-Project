@@ -4,6 +4,7 @@ import mysql.connector
 import os # for .env
 
 #sets up the connection, and prints out error if couldn't connect
+
 def setup():
     with open(".env", "r") as file:
         for line in file:
