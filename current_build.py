@@ -131,7 +131,7 @@ class CurrentBuild:
 
         #testing out cursor.execute parameters and implicit concatenation, as per the mysql-conncector dev guide
         query = (
-            "INSERT INTO `User Configurations`(`Motherboard_id`,`CPU_id`,`GPU_id`,`RAM_id`,`Storage_id`) "
+            "INSERT INTO `Configurations`(`Motherboard_id`,`CPU_id`,`GPU_id`,`RAM_id`,`Storage_id`) "
             "VALUES (%(Motherboards)s, %(CPU)s, %(GPU)s, %(RAM)s, %(Storage)s)"
         )
         with self.connection.cursor() as cursor:

@@ -1,4 +1,3 @@
--- TODO: make new schema for localhost testing server
 CREATE TABLE IF NOT EXISTS `Motherboards` (
 	`component_id` INTEGER AUTO_INCREMENT,
 	`name` VARCHAR(128),
@@ -19,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `Motherboards` (
 	`SATA_3_ports` INTEGER,
 	`U_2_ports` INTEGER,
 	PRIMARY KEY(`component_id`)
-);
+) AUTO_INCREMENT = 1;
 
 
 CREATE TABLE IF NOT EXISTS `RAM` (
@@ -29,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `RAM` (
 	`ddr_version` INTEGER,
 	`speed_MHz` INTEGER,
 	PRIMARY KEY(`component_id`)
-);
+) AUTO_INCREMENT = 10;
 
 
 CREATE TABLE IF NOT EXISTS `CPU` (
@@ -41,7 +40,7 @@ CREATE TABLE IF NOT EXISTS `CPU` (
 	`max_ram_capacity_MB` INTEGER,
 	`ddr_version` INTEGER,
 	PRIMARY KEY(`component_id`)
-);
+) AUTO_INCREMENT = 20;
 
 
 CREATE TABLE IF NOT EXISTS `Storage` (
@@ -54,7 +53,7 @@ CREATE TABLE IF NOT EXISTS `Storage` (
 	`cache_MB` INTEGER,
 	`nvme` BOOLEAN,
 	PRIMARY KEY(`component_id`)
-);
+) AUTO_INCREMENT = 30;
 
 
 CREATE TABLE IF NOT EXISTS `GPU` (
@@ -64,18 +63,15 @@ CREATE TABLE IF NOT EXISTS `GPU` (
 	`vram_GB` INTEGER,
 	`vram_type` VARCHAR(16),
 	`PCIe_gen` FLOAT,
-	`PCIe_lanes` INTEGER,
+	`PCIe_4` BOOLEAN NOT NULL,
+	`PCIe_8` BOOLEAN NOT NULL,
+	`PCIe_16` BOOLEAN NOT NULL,
 	PRIMARY KEY(`component_id`)
-);
+) AUTO_INCREMENT = 40;
 
 
-CREATE TABLE IF NOT EXISTS `User Configurations` (
+CREATE TABLE IF NOT EXISTS `Configurations` (
 	`Config_id` INTEGER AUTO_INCREMENT,
-    /* So a config can be mapped to a specific user, for them alone to view and edit.
-        Shouldn't map same config to multiple users, 
-        because a user should not be able to edit others config, 
-        and a user can edit their config at any time
-    */
 	`Motherboard_id` INTEGER,
 	`CPU_id` INTEGER,
 	`GPU_id` INTEGER,
@@ -85,18 +81,18 @@ CREATE TABLE IF NOT EXISTS `User Configurations` (
 );
 
 
-ALTER TABLE `User Configurations`
+ALTER TABLE `Configurations`
 ADD FOREIGN KEY(`Motherboard_id`) REFERENCES `Motherboards`(`component_id`)
 ON UPDATE SET NULL ON DELETE SET NULL;
-ALTER TABLE `User Configurations`
+ALTER TABLE `Configurations`
 ADD FOREIGN KEY(`CPU_id`) REFERENCES `CPU`(`component_id`)
 ON UPDATE SET NULL ON DELETE SET NULL;
-ALTER TABLE `User Configurations`
+ALTER TABLE `Configurations`
 ADD FOREIGN KEY(`GPU_id`) REFERENCES `GPU`(`component_id`)
 ON UPDATE SET NULL ON DELETE SET NULL;
-ALTER TABLE `User Configurations`
+ALTER TABLE `Configurations`
 ADD FOREIGN KEY(`RAM_id`) REFERENCES `RAM`(`component_id`)
 ON UPDATE SET NULL ON DELETE SET NULL;
-ALTER TABLE `User Configurations`
+ALTER TABLE `Configurations`
 ADD FOREIGN KEY(`Storage_id`) REFERENCES `Storage`(`component_id`)
 ON UPDATE SET NULL ON DELETE SET NULL;
