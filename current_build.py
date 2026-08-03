@@ -92,7 +92,7 @@ class CurrentBuild:
                 for k in current_picked:
                     #get table of parts with that id, all attributes
                     start_query += "JOIN "
-                    start_query += f"(SELECT * FROM `{k}` WHERE `{k}`.`component_id` = {self.picked_items_id[k]}) AS p{count} "
+                    start_query += f"(SELECT * FROM `{k}` WHERE `{k}`.`component_id` = %({k})s) AS p{count} "
 
                     #join this table (holding one specific part) with table of type_to_output
                     #TODO: allow for insertion of alias into on condition taken from join_conditions_dict (CRITICAL)
@@ -100,7 +100,7 @@ class CurrentBuild:
                     start_query += on_condition.replace(k, f"p{count}")
                     count += 1
                 #final_query = " ".join(query_commands)
-                cursor.execute(start_query)
+                cursor.execute(start_query, self.picked_items_id)
                 result = list(cursor.fetchall())
                 return result
 
@@ -141,7 +141,7 @@ class CurrentBuild:
         )
         with self.connection.cursor() as cursor:
             cursor.execute(query, self.picked_items_id)
-            #by default doesn't commit, need to add connection.commit statement
+            #TODO: by default doesn't commit, need to add connection.commit statement when function is ready
 
     
     

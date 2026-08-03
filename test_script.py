@@ -35,8 +35,8 @@ new_build = CurrentBuild(connection)
 new_build.add_part_test("RAM", 13)
 new_build.add_part_test("CPU", 16)
 print(new_build.output_compatible("Motherboards"))
-new_build.add_part_test("Motherboards", 13)
-print(new_build.exit_and_save())
+#new_build.add_part_test("Motherboards", 13)
+new_build.exit_and_save()
 
 
 connection.close()
