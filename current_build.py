@@ -79,14 +79,10 @@ class CurrentBuild:
             #run query
             #loop through already picked items and run query for each, based on appropiate condition
             #return list of tuples
-            result = None #for now
             start_query = f"SELECT `{type_to_output}`.`component_id`, `{type_to_output}`.`name` FROM `{type_to_output}` "
 
             #get list of items already picked
             current_picked = [k for k, v in self.picked_items_id.items() if v is not None]
-            #query_commands = []
-            #put commands in list fist then use string.join(list) function for debugging purposes
-            #query_commands.append(start_query)
             with self.connection.cursor() as cursor:
                 count = 1
                 for k in current_picked:
