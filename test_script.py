@@ -24,13 +24,8 @@ connection = mysql.connector.connect(
 
 new_build = CurrentBuild(connection)
 
-#print(new_build.output_compatible("RAM"))
 
-#print(new_build.test_output())
-
-#print(new_build.first_pick_test("CPU"))
-#print(new_build.output_compatible("Motherboards"))
-
+#NOTE: for testing purposes, numbers in add_part_test are id values from localhost experimental server
 print(new_build.output_compatible("Motherboards"))
 print(new_build.output_compatible("CPU"))
 print(new_build.output_compatible("RAM"))
