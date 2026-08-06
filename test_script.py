@@ -24,7 +24,6 @@ connection = mysql.connector.connect(
 
 new_build = CurrentBuild(connection)
 
-#new_build.add_part_test("CPU", 16) #hardcoded value for testing only
 #print(new_build.output_compatible("RAM"))
 
 #print(new_build.test_output())
@@ -32,13 +31,24 @@ new_build = CurrentBuild(connection)
 #print(new_build.first_pick_test("CPU"))
 #print(new_build.output_compatible("Motherboards"))
 
-#new_build.add_part_test("RAM", 13)
-#new_build.add_part_test("CPU", 16)
 print(new_build.output_compatible("Motherboards"))
 print(new_build.output_compatible("CPU"))
 print(new_build.output_compatible("RAM"))
 print(new_build.output_compatible("1=1"))
-#new_build.add_part_test("Motherboards", 13)
+print(new_build.output_compatible("GPU"))
+print(new_build.output_compatible("Storage"))
+
+print("----")
+new_build.add_part_test("Motherboards", 1)
+print(new_build.output_compatible("CPU"))
+new_build.add_part_test("CPU", 21)
+print(new_build.output_compatible("RAM"))
+new_build.add_part_test("RAM", 10)
+print(new_build.output_compatible("GPU"))
+new_build.add_part_test("GPU", 40)
+print(new_build.output_compatible("Storage"))
+new_build.add_part_test("Storage", 30)
+
 new_build.exit_and_save()
 
 

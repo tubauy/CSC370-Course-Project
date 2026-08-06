@@ -5,7 +5,7 @@ import mysql.connector
 class CurrentBuild:
     #class variable of WHERE conditions
     #first item in tuple is item already picked, second is relation to be searched
-    #TODO fill in missing conditions if applicable
+    #TODO fill in missing conditions if applicable (MOTHERBOARD, GPU)
     #TODO keep empty strings where no compatability rules exist?
     #TODO account for mirrored tuples (for now hardcoding mirrors)
         # sort key before indexing dict?
