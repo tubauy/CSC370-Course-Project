@@ -50,17 +50,6 @@ class CurrentBuild:
         self.connection = DBconnection
 
 
-    def test_output(self):
-        #test output from DB
-        #make cursor
-        with self.connection.cursor() as cursor:
-            #query = f"SELECT * FROM `CPU` WHERE `component_id` = {self.picked_items_id["CPU"]}"
-            query = f'SELECT `RAM`.`component_id`, `RAM`.`name` FROM `RAM` JOIN (SELECT * FROM `CPU` WHERE `CPU`.`component_id` = {self.picked_items_id['CPU']}) AS p1 ON (`p1`.`ddr_version` = `RAM`.`ddr_version` AND `p1`.`max_ram_capacity_MB` >= `RAM`.`capacity_MB`) '
-            cursor.execute(query)
-            return(list(cursor.fetchall()))
-
-
-
     def already_picked(self, type):
         #output true/false if already picked part of that type
         if(self.picked_items_id[type] is None):
@@ -98,16 +87,6 @@ class CurrentBuild:
                 cursor.execute(start_query, self.picked_items_id)
                 result = list(cursor.fetchall())
                 return result
-
-    #def first_pick_test(self, category):
-        #return list of tuples
-        #result = None
-        #with self.connection.cursor() as cursor:
-            #query = f"SELECT `{category}`.`component_id`,`{category}`.`name` FROM {category}"
-            #cursor.execute(query)
-            #result = list(cursor.fetchall())
-            #return result
-
 
 
     def add_part_test(self,category, partId: int):
