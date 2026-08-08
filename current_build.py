@@ -33,7 +33,17 @@ class CurrentBuild:
         ("GPU","Storage"):"",
         ("Storage","GPU"):"",
         ("RAM","Storage"):"",
-        ("Storage","RAM"):""
+        ("Storage","RAM"):"",
+        ("PSU","CPU"):"",
+        ("CPU","PSU"):"",
+        ("PSU", "Motherboards"):"",
+        ("Motherboards","PSU"):"",
+        ("PSU","GPU"):"",
+        ("GPU","PSU"):"",
+        ("PSU","RAM"):"",
+        ("RAM","PSU"):"",
+        ("PSU","Storage"):"",
+        ("Storage","PSU"):"",
     }
 
     def __init__(self, DBconnection):
@@ -44,7 +54,8 @@ class CurrentBuild:
             "CPU": None,
             "GPU": None,
             "RAM": None,
-            "Storage": None
+            "Storage": None,
+            "PSU": None
         }
 
         self.connection = DBconnection
@@ -102,6 +113,7 @@ class CurrentBuild:
     def exit_and_save(self):
         #save current config to DB Configurations table
         #using parameterized query for part id's as user can input those
+        #TODO: add PSU here
         query = (
             "INSERT INTO `Configurations`(`Motherboard_id`,`CPU_id`,`GPU_id`,`RAM_id`,`Storage_id`) "
             "VALUES (%(Motherboards)s, %(CPU)s, %(GPU)s, %(RAM)s, %(Storage)s)"
