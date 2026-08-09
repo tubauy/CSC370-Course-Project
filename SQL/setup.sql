@@ -67,12 +67,6 @@ CREATE TABLE Motherboards(
     `ddr_version` INT,
     `ram_slots` INT,
     -- PCIe --
-    `PCIe_1_gen` FLOAT,
-    `PCIe_1_slots` INT,
-    `PCIe_4_gen` FLOAT,
-    `PCIe_4_slots` INT,
-    `PCIe_8_gen` FLOAT,
-    `PCIe_8_slots` INT,
     `PCIe_16_gen` FLOAT,
     `PCIe_16_slots` INT,
     -- Storage --
@@ -128,8 +122,7 @@ CREATE TABLE GPUs(
     `clock_speed_MHz` INT,
     `vram_GB` INT,
     `vram_type` VARCHAR(16),
-    `PCIe_gen` FLOAT,
-    `PCIe_lanes` INT
+    `PCIe_16_gen` FLOAT
 );
 
 CREATE TABLE PSUs(
