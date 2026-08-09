@@ -14,51 +14,53 @@ class CurrentBuild:
     #TODO add indexes in DB to speed joins
     #TODO: change from f strings to parameterized queries, safer
     join_conditions_dict = {
-        ("CPU","Motherboards"): "ON (`CPU`.`socket_type` = `Motherboards`.`socket_type`)",
-        ("Motherboards","CPU"): "ON (`CPU`.`socket_type` = `Motherboards`.`socket_type`)",
-        ("CPU","GPU"):"",
-        ("GPU","CPU"):"",
-        ("CPU","RAM"): "ON (`CPU`.`ddr_version` = `RAM`.`ddr_version` AND `CPU`.`max_ram_capacity_MB` >= `RAM`.`capacity_MB`)",
-        ("RAM","CPU"): "ON (`CPU`.`ddr_version` = `RAM`.`ddr_version` AND `CPU`.`max_ram_capacity_MB` >= `RAM`.`capacity_MB`)",
-        ("CPU","Storage"):"",
-        ("Storage","CPU"):"",
-        ("Motherboards","GPU"):"",
-        ("GPU","Motherboards"):"",
+        ("CPUs","Motherboards"): "ON (`CPU`.`socket_type` = `Motherboards`.`socket_type`)",
+        ("Motherboards","CPUs"): "ON (`CPU`.`socket_type` = `Motherboards`.`socket_type`)",
+        ("CPUs","GPUs"):"",
+        ("GPUs","CPUs"):"",
+        ("CPUs","RAM"): "ON (`CPU`.`ddr_version` = `RAM`.`ddr_version` AND `CPU`.`max_ram_capacity_MB` >= `RAM`.`capacity_MB`)",
+        ("RAM","CPUs"): "ON (`CPU`.`ddr_version` = `RAM`.`ddr_version` AND `CPU`.`max_ram_capacity_MB` >= `RAM`.`capacity_MB`)",
+        ("CPUs","Storage"):"",
+        ("Storage","CPUs"):"",
+        ("Motherboards","GPUs"):"",
+        ("GPUs","Motherboards"):"",
         ("Motherboards","RAM"): "ON (`Motherboards`.`ddr_version` = `RAM`.`ddr_version`)",
         ("RAM","Motherboards"): "ON (`Motherboards`.`ddr_version` = `RAM`.`ddr_version`)",
         ("Motherboards","Storage"):"",
         ("Storage","Motherboards"):"",
-        ("GPU","RAM"):"",
-        ("RAM","GPU"):"",
-        ("GPU","Storage"):"",
-        ("Storage","GPU"):"",
+        ("GPUs","RAM"):"",
+        ("RAM","GPUs"):"",
+        ("GPUs","Storage"):"",
+        ("Storage","GPUs"):"",
         ("RAM","Storage"):"",
         ("Storage","RAM"):"",
-        ("PSU","CPU"):"",
-        ("CPU","PSU"):"",
-        ("PSU", "Motherboards"):"",
-        ("Motherboards","PSU"):"",
-        ("PSU","GPU"):"",
-        ("GPU","PSU"):"",
-        ("PSU","RAM"):"",
-        ("RAM","PSU"):"",
-        ("PSU","Storage"):"",
-        ("Storage","PSU"):"",
+        ("PSUs","CPUs"):"",
+        ("CPUs","PSUs"):"",
+        ("PSUs", "Motherboards"):"",
+        ("Motherboards","PSUs"):"",
+        ("PSUs","GPUs"):"",
+        ("GPUs","PSUs"):"",
+        ("PSUs","RAM"):"",
+        ("RAM","PSUs"):"",
+        ("PSUs","Storage"):"",
+        ("Storage","PSUs"):"",
     }
 
-    def __init__(self, DBconnection):
+    def __init__(self, DBconnection, config_name = "Untitled", user_name = "Guest"):
         #Passed connection object, because connection object (not cursor) needed for transaction functions 
         #values of dict are component_id of picked parts
         self.picked_items_id = {
             "Motherboards": None,
-            "CPU": None,
-            "GPU": None,
+            "CPUs": None,
+            "GPUs": None,
             "RAM": None,
             "Storage": None,
-            "PSU": None
+            "PSUs": None
         }
 
         self.connection = DBconnection
+        self.config_name = config_name
+        self.user_name = user_name
 
 
     def already_picked(self, type):
@@ -115,11 +117,21 @@ class CurrentBuild:
         #using parameterized query for part id's as user can input those
         #TODO: add PSU here
         query = (
-            "INSERT INTO `Configurations`(`Motherboard_id`,`CPU_id`,`GPU_id`,`RAM_id`,`Storage_id`) "
-            "VALUES (%(Motherboards)s, %(CPU)s, %(GPU)s, %(RAM)s, %(Storage)s)"
+            "INSERT INTO `Configurations`(`configuration_name`,`username`,`Motherboard_id`,`CPU_id`,`GPU_id`,`RAM_id`,`Storage_id`) "
+            "VALUES (%(configuration_name)s, %(username)s, %(Motherboards)s, %(CPUs)s, %(GPUs)s, %(RAM)s, %(Storage)s, %(PSUs)s)"
         )
+        params_dict = {
+            "Motherboards": self.picked_items_id["Motherboards"],
+            "CPUs": self.picked_items_id["CPU"],
+            "GPUs": self.picked_items_id["GPU"],
+            "RAM": self.picked_items_id["RAM"],
+            "Storage": self.picked_items_id["Storage"],
+            "PSUs": self.picked_items_id["PSU"],
+            "config_name": self.config_name,
+            "username": self.user_name
+        }
         with self.connection.cursor() as cursor:
-            cursor.execute(query, self.picked_items_id)
+            cursor.execute(query, params_dict)
             #TODO: by default doesn't commit, need to add connection.commit statement when function is ready
 
     
