@@ -1,35 +1,35 @@
 CREATE TABLE Users(
-    `user_id` INT AUTO_INCREMENT PRIMARY KEY,
-    `username` VARCHAR(255),
+    `username` VARCHAR(255) PRIMARY KEY,
     `email` VARCHAR(255),
     `date_created` DATETIME
 )
 
 CREATE TABLE Configurations(
-    `configuration_id` INT AUTO_INCREMENT PRIMARY KEY,
+    `configuration_name` VARCHAR(255),
     -- Owner of configuration -- 
-    `user_id` INT REFERENCES `Users`(`user_id`)
+    `username` VARCHAR(255) REFERENCES `Users`(`username`)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
     -- Component IDs --
-    `motherboard_id` INT REFERENCES `Components`(`component_id`)
+    `motherboard_id` INT REFERENCES `Motherboards`(`component_id`)
         ON DELETE SET NULL
         ON UPDATE SET NULL,
-    `ram_id` INT REFERENCES `Components`(`component_id`)
+    `ram_id` INT REFERENCES `RAM`(`component_id`)
         ON DELETE SET NULL
         ON UPDATE SET NULL,
-    `cpu_id` INT REFERENCES `Components`(`component_id`)
+    `cpu_id` INT REFERENCES `CPUs`(`component_id`)
         ON DELETE SET NULL
         ON UPDATE SET NULL,
-    `storage_id` INT REFERENCES `Components`(`component_id`)
+    `storage_id` INT REFERENCES `Storage`(`component_id`)
         ON DELETE SET NULL
         ON UPDATE SET NULL,
-    `gpu_id` INT REFERENCES `Components`(`component_id`)
+    `gpu_id` INT REFERENCES `GPUs`(`component_id`)
         ON DELETE SET NULL
         ON UPDATE SET NULL,
-    `psu_id` INT REFERENCES `Components`(`component_id`)
+    `psu_id` INT REFERENCES `PSUs`(`component_id`)
         ON DELETE SET NULL
-        ON UPDATE SET NULL
+        ON UPDATE SET NULL,
+    PRIMARY KEY (`username`, `configuration_name`)
 )
 
 CREATE TABLE Manufacturers(
@@ -50,11 +50,14 @@ CREATE TABLE Components(
         'PSU'
     ),
     `name` VARCHAR(255),
-    `manufacturer` VARCHAR(255),
+    `manufacturer` VARCHAR(255) REFERENCES `Manufacturers`(`name`)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
     `pirce` FLOAT,
     `release_date` DATE
 )
 
+-- All of these tables are subclasses of `Components` --
 CREATE TABLE Motherboards(
     `component_id` INT PRIMARY KEY REFERENCES `Components`(`component_id`)
         ON DELETE CASCADE,
