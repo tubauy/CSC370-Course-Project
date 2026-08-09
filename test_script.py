@@ -24,27 +24,9 @@ connection = mysql.connector.connect(
 
 new_build = CurrentBuild(connection)
 
+#Insert test script for oracle server here
 
-#NOTE: for testing purposes, numbers in add_part_test are id values from localhost experimental server
-print(new_build.output_compatible("Motherboards"))
-print(new_build.output_compatible("CPU"))
-print(new_build.output_compatible("RAM"))
-print(new_build.output_compatible("1=1"))
-print(new_build.output_compatible("GPU"))
-print(new_build.output_compatible("Storage"))
-
-print("----")
-new_build.add_part_test("Motherboards", 1)
-print(new_build.output_compatible("CPU"))
-new_build.add_part_test("CPU", 21)
-print(new_build.output_compatible("RAM"))
-new_build.add_part_test("RAM", 10)
-print(new_build.output_compatible("GPU"))
-new_build.add_part_test("GPU", 40)
-print(new_build.output_compatible("Storage"))
-new_build.add_part_test("Storage", 30)
-
-new_build.exit_and_save()
+#new_build.exit_and_save()
 
 
 connection.close()
