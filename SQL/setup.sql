@@ -53,7 +53,7 @@ CREATE TABLE Components(
     `manufacturer` VARCHAR(255) REFERENCES `Manufacturers`(`name`)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
-    `pirce` FLOAT,
+    `price` FLOAT,
     `release_date` DATE
 )
 
