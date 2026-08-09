@@ -114,19 +114,18 @@ class CurrentBuild:
 
     def exit_and_save(self):
         #save current config to DB Configurations table
-        #using parameterized query for part id's as user can input those
-        #TODO: add PSU here
+        #using parameterized query as we are inserting values that the customer will input
         query = (
             "INSERT INTO `Configurations`(`configuration_name`,`username`,`Motherboard_id`,`CPU_id`,`GPU_id`,`RAM_id`,`Storage_id`) "
             "VALUES (%(configuration_name)s, %(username)s, %(Motherboards)s, %(CPUs)s, %(GPUs)s, %(RAM)s, %(Storage)s, %(PSUs)s)"
         )
         params_dict = {
             "Motherboards": self.picked_items_id["Motherboards"],
-            "CPUs": self.picked_items_id["CPU"],
-            "GPUs": self.picked_items_id["GPU"],
-            "RAM": self.picked_items_id["RAM"],
+            "CPUs": self.picked_items_id["CPUs"],
+            "GPUs": self.picked_items_id["GPUs"],
+            "RAM": self.picked_items_id["RAMs"],
             "Storage": self.picked_items_id["Storage"],
-            "PSUs": self.picked_items_id["PSU"],
+            "PSUs": self.picked_items_id["PSUs"],
             "config_name": self.config_name,
             "username": self.user_name
         }
