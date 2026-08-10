@@ -85,20 +85,30 @@ class CurrentBuild:
 
             #get list of items already picked
             current_picked = [k for k, v in self.picked_items_id.items() if v is not None]
-            with self.connection.cursor() as cursor:
-                count = 1
-                for k in current_picked:
-                    #get table of parts with that id, all attributes to allow for JOINs to have any ON conditions
-                    start_query += "JOIN "
-                    start_query += f"(SELECT * FROM `{k}` WHERE `{k}`.`component_id` = %({k})s) AS p{count} "
-                    #join this table (holding one specific part) with table of type_to_output
-                    on_condition = f"{self.join_conditions_dict[(k,type_to_output)]} "
-                    #string replace function replaces part we already have in ON conditions with appropiate alias
-                    start_query += on_condition.replace(k, f"p{count}")
-                    count += 1
-                cursor.execute(start_query, self.picked_items_id)
-                #using parameters for values of picked_items_id, as those values can be input by user
-                result = list(cursor.fetchall())
+            count = 1
+
+            for k in current_picked:
+                #get table of parts with that id, all attributes to allow for JOINs to have any ON conditions
+                start_query += "JOIN "
+                start_query += f"(SELECT * FROM `{k}` WHERE `{k}`.`component_id` = %({k})s) AS p{count} "
+                #join this table (holding one specific part) with table of type_to_output
+                on_condition = f"{self.join_conditions_dict[(k,type_to_output)]} "
+                #string replace function replaces part we already have in ON conditions with appropiate alias
+                start_query += on_condition.replace(k, f"p{count}")
+                count += 1
+
+            result = None
+            try:
+                self.connection.start_transaction()
+                with self.connection.cursor() as cursor:
+                    cursor.execute(start_query, self.picked_items_id)
+                    #using parameters for values of picked_items_id, as those values can be input by user
+                    result = list(cursor.fetchall())
+            except Exception:
+                self.connection.rollback()
+                raise
+            else:
+                self.connection.commit()
                 return result
 
 
@@ -122,8 +132,8 @@ class CurrentBuild:
         #Note: in source code of mysql-connector python, cursor.__exit__ does not handle exceptions, only runs self.close()
         #   so, have to catch exceptions
         query = (
-            "INSERT INTO `Configurations`(`configuration_name`,`username`,`Motherboard_id`,`CPU_id`,`GPU_id`,`RAM_id`,`Storage_id`) "
-            "VALUES (%(configuration_name)s, %(username)s, %(Motherboards)s, %(CPUs)s, %(GPUs)s, %(RAM)s, %(Storage)s, %(PSUs)s)"
+            "INSERT INTO `Configurations`(`configuration_name`,`username`,`motherboard_id`,`ram_id`,`cpu_id`,`storage_id`,`gpu_id`,`psu_id`) "
+            "VALUES (%(configuration_name)s, %(username)s, %(Motherboards)s, %(RAM)s, %(CPUs)s, %(Storage)s, %(GPUs)s, %(PSUs)s)"
         )
 
         #dict of parameters for final insert query
@@ -134,21 +144,22 @@ class CurrentBuild:
             "RAM": self.picked_items_id["RAM"],
             "Storage": self.picked_items_id["Storage"],
             "PSUs": self.picked_items_id["PSUs"],
-            "config_name": self.config_name,
+            "configuration_name": self.config_name,
             "username": self.user_name
         }
+
         try:
             self.connection.start_transaction()
             with self.connection.cursor() as cursor:
                 #check if user exists
                 exists_query = "SELECT 1 FROM `Users` WHERE `username` = %s"
-                cursor.execute(exists_query,self.user_name)
+                cursor.execute(exists_query, (self.user_name,))
                 if(cursor.fetchall() is None):
                     raise ValueError(f"Unkown User: {self.user_name}")
                     #Should we have seprate class to create users, to be called from CLI?
                 
                 #check if chosen parts exist in category tables
-                for k, v in self.picked_items_id:
+                for k, v in self.picked_items_id.items():
                     if(v is None):
                         continue
 
@@ -167,7 +178,8 @@ class CurrentBuild:
         else:
             pass
             #TODO: account for transaction already running error
-            self.connection.commit()
+            #self.connection.commit()
+            self.connection.rollback() #for testing
 
     
     
