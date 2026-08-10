@@ -197,33 +197,106 @@ class CurrentBuild:
             #self.connection.commit()
             self.connection.rollback() #for testing
 
+
+
+
+
+
+
 class SavedBuild(CurrentBuild):
     #loads an existing build from database instead of starting from scratch, and runs UPDATE upon exit_and_save
     def __init__(self, DBconnection, config_name = "Untitled", user_name = "Guest"):
         super().__init(DBconnection, config_name, user_name)
         #search for existing build in database, if does not exist, error
         try:
-            self.connection.start_transaction()
-            with self.connection.cursor(buffered=True) as cursor:
+            self.connection.start_transaction(isolation_level = "REPEATABLE READ")
+            #using buffered cursor to prevent unfetched results errors
+            with self.connection.cursor(dictionary=True, buffered=True) as cursor:
+                #should also check if user exists?
                 exists_query = "SELECT 1 FROM `Configurations` WHERE (`username` = %s AND `configuration_name` = %s)"
                 cursor.execute(exists_query, (self.user_name, self.config_name))
                 if(cursor.fetchone() is None):
                     raise ValueError(f"User: {self.user_name} does not have a configuration named {self.config_name}")
-
+                #check for multiple returns?
                 #Build exists, so load data into picked_items_id
-                
+                init_query = (
+                    "SELECT `motherboard_id`,`cpu_id`,`gpu_id`,`ram_id`,`storage_id`,`psu_id`"
+                    "FROM `Configurations` WHERE `configuration_name` = %s AND `username` = %s"
+                )
+                cursor.execute(init_query, (self.config_name, self.user_name))
+                results_dict = dict(cursor.fetchone())
+                #TODO: throw error if dict key doesnt exist (to prevent annoying typo bugs)
+                #TODO: clean up with loop
+                self.picked_items_id["Motherboards"] = results_dict["motherboard_id"]
+                self.picked_items_id["CPUs"] = results_dict["cpu_id"]
+                self.picked_items_id["GPUs"] = results_dict["gpu_id"]
+                self.picked_items_id["RAM"] = results_dict["ram_id"]
+                self.picked_items_id["Storage"] = results_dict["storage_id"]
+                self.picked_items_id["PSUs"] = results_dict["psu_id"]
 
         except Exception:
-            pass
             self.connection.rollback()
             raise
         else:
-            pass
             self.connection.commit()
 
     def exit_and_save(self):
         #this needs to be update instead of insert
         pass
+        params_dict = {
+                    "Motherboards": self.picked_items_id["Motherboards"],
+                    "CPUs": self.picked_items_id["CPUs"],
+                    "GPUs": self.picked_items_id["GPUs"],
+                    "RAM": self.picked_items_id["RAM"],
+                    "Storage": self.picked_items_id["Storage"],
+                    "PSUs": self.picked_items_id["PSUs"],
+                    "configuration_name": self.config_name,
+                    "username": self.user_name
+        }
+        edit_query = (
+            "UPDATE `Configurations` SET "
+            "`motherboard_id` = %(Motherboards)s, "
+            "`ram_id` = %(RAM)s, "
+            "`cpu_id` = %(CPUs)s, "
+            "`storage_id` = %(Storage)s, "
+            "`gpu_id` = %(GPUs)s, "
+            "`psu_id` = %(PSUs)s, "
+            "WHERE `configuration_name` = %(configuration_name)s AND `username` = %(username)s"
+        )
+
+        try:
+            self.connection.start_transaction(isolation_level = "REPEATABLE READ")
+            with self.connection.cursor(buffered=True) as cursor:
+                #check if user exists (needed?)
+                #exists_query = "SELECT 1 FROM `Users` WHERE `username` = %s"
+                #cursor.execute(exists_query, (self.user_name,))
+                #if(cursor.fetchone() is None):
+                    #raise ValueError(f"Unkown User: {self.user_name}")
+
+                #check if config exists
+                exists_query = "SELECT 1 FROM `Configurations` WHERE (`username` = %s AND `configuration_name` = %s)"
+                cursor.execute(exists_query, (self.user_name, self.config_name))
+                if(cursor.fetchone() is None):
+                    raise ValueError(f"User: {self.user_name} does not have a configuration named {self.config_name}")
+
+                #check if chosen parts exist
+                for k, v in self.picked_items_id.items():
+                    if(v is None):
+                        continue
+
+                    exists_query = f"SELECT 1 FROM `{k}` WHERE `component_id` = %s"
+                    cursor.execute(exists_query, v)
+                    if(cursor.fetchone() is None):
+                        raise ValueError(f"component_id {v} not found in {k} table")
+
+                cursor.execute(edit_query, params_dict)
+
+        except Exception:
+            self.connection.rollback()
+            raise
+        else:
+            #self.connection.commit()
+            self.connection.rollback() #for testing
 
     
     

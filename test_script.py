@@ -39,11 +39,15 @@ query = (
 )
 
 query2 = (
-    "SELECT socket_type FROM `Motherboards` WHERE component_id = 1006"
+    "SELECT `socket_type`,`component_id` FROM `Motherboards` WHERE component_id = 1006"
 )
 
 query3 = (
-    "SELECT socket_type FROM `CPUs`"
+    "SELECT `configuration_name` FROM `Configurations`"
+)
+
+query4 = (
+    "SELECT `name`,`manufacturer` FROM `Components` LIMIT 10"
 )
 
 """ connection.start_transaction()
@@ -51,5 +55,12 @@ with connection.cursor() as cursor:
     cursor.execute(query3)
     print(cursor.fetchall()) 
     connection.rollback() """
+
+""" connection.start_transaction() """
+
+""" with connection.cursor(dictionary=True, buffered=True) as cursor:
+    cursor.execute(query4)
+    print(cursor.fetchone()["name"])
+connection.rollback() """
 
 connection.close()
