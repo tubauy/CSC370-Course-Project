@@ -14,12 +14,12 @@ class CurrentBuild:
     #TODO add indexes in DB to speed joins
     #TODO: change from f strings to parameterized queries, safer
     join_conditions_dict = {
-        ("CPUs","Motherboards"): "ON (`CPU`.`socket_type` = `Motherboards`.`socket_type`)",
-        ("Motherboards","CPUs"): "ON (`CPU`.`socket_type` = `Motherboards`.`socket_type`)",
+        ("CPUs","Motherboards"): "ON (`CPUs`.`socket_type` = `Motherboards`.`socket_type`)",
+        ("Motherboards","CPUs"): "ON (`CPUs`.`socket_type` = `Motherboards`.`socket_type`)",
         ("CPUs","GPUs"):"",
         ("GPUs","CPUs"):"",
-        ("CPUs","RAM"): "ON (`CPU`.`ddr_version` = `RAM`.`ddr_version` AND `CPU`.`max_ram_capacity_MB` >= `RAM`.`capacity_MB`)",
-        ("RAM","CPUs"): "ON (`CPU`.`ddr_version` = `RAM`.`ddr_version` AND `CPU`.`max_ram_capacity_MB` >= `RAM`.`capacity_MB`)",
+        ("CPUs","RAM"): "ON (`CPUs`.`ddr_version` = `RAM`.`ddr_version` AND `CPUs`.`max_ram_capacity_MB` >= `RAM`.`capacity_MB`)",
+        ("RAM","CPUs"): "ON (`CPUs`.`ddr_version` = `RAM`.`ddr_version` AND `CPUs`.`max_ram_capacity_MB` >= `RAM`.`capacity_MB`)",
         ("CPUs","Storage"):"",
         ("Storage","CPUs"):"",
         ("Motherboards","GPUs"):"",
