@@ -2,7 +2,7 @@ CREATE TABLE Users(
     `username` VARCHAR(255) PRIMARY KEY,
     `email` VARCHAR(255),
     `date_created` DATETIME
-)
+);
 
 CREATE TABLE Configurations(
     `configuration_name` VARCHAR(255),
@@ -30,13 +30,13 @@ CREATE TABLE Configurations(
         ON DELETE SET NULL
         ON UPDATE SET NULL,
     PRIMARY KEY (`username`, `configuration_name`)
-)
+);
 
 CREATE TABLE Manufacturers(
     `name` VARCHAR(255) PRIMARY KEY,
     `country` VARCHAR(255),
     `address` VARCHAR(255)
-)
+);
 
 -- Component table holds meta data for all components --
 CREATE TABLE Components(
@@ -55,7 +55,7 @@ CREATE TABLE Components(
         ON UPDATE CASCADE,
     `price` FLOAT,
     `release_date` DATE
-)
+);
 
 -- All of these tables are subclasses of `Components` --
 CREATE TABLE Motherboards(
@@ -138,4 +138,4 @@ CREATE TABLE PSUs(
     `pcie_6_plus_2` INT,
     `sata` INT,
     `molex_4_pin` INT
-)
+);
