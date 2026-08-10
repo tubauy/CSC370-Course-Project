@@ -109,6 +109,7 @@ class CurrentBuild:
                 raise
             else:
                 self.connection.commit()
+                #MUST ALWAYS CLOSE TRANSACTIONS
                 return result
 
 
