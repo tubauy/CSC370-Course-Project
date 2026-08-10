@@ -182,7 +182,7 @@ class CurrentBuild:
                         continue
 
                     exists_query = f"SELECT 1 FROM `{k}` WHERE `component_id` = %s"
-                    cursor.execute(exists_query, v)
+                    cursor.execute(exists_query, (v,))
                     if(cursor.fetchone() is None):
                         raise ValueError(f"component_id {v} not found in {k} table")
                 
@@ -194,8 +194,8 @@ class CurrentBuild:
             raise
 
         else:
-            #self.connection.commit()
-            self.connection.rollback() #for testing
+            self.connection.commit()
+            #self.connection.rollback() #for testing
 
 
 
@@ -206,7 +206,7 @@ class CurrentBuild:
 class SavedBuild(CurrentBuild):
     #loads an existing build from database instead of starting from scratch, and runs UPDATE upon exit_and_save
     def __init__(self, DBconnection, config_name = "Untitled", user_name = "Guest"):
-        super().__init(DBconnection, config_name, user_name)
+        super().__init__(DBconnection, config_name, user_name)
         #search for existing build in database, if does not exist, error
         try:
             self.connection.start_transaction(isolation_level = "REPEATABLE READ")
@@ -240,6 +240,9 @@ class SavedBuild(CurrentBuild):
         else:
             self.connection.commit()
 
+    def test_output(self, category):
+        return self.picked_items_id[category]
+    
     def exit_and_save(self):
         #this needs to be update instead of insert
         pass
