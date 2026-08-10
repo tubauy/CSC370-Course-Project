@@ -1,5 +1,9 @@
 from db_add import *
 import json
+import sys
+import os
+import mysql.connector
+
 
 
 def parse_common_fields(data):
@@ -68,7 +72,7 @@ def parse_motherboard_json(data):
             break
 
     onboard_ethernet = data.get("onboard_ethernet", [])
-    ethernet_speed = onboard_ethernet[0].get("speed") if onboard_ethernet else "N/A"
+    ethernet_speed = onboard_ethernet[0].get("speed") if onboard_ethernet else None
 
     return {
         "form_factor": data.get("form_factor"),
@@ -91,18 +95,23 @@ def parse_storage_json(data):
         "capacity_GB": data.get("capacity"),
         "storage_type": data.get("storage_type"),
         "form_factor": data.get("form_factor"),
-        "INTerface": data.get("interface"),
+        "INTerface": data.get("interface"),  # key name must match SUBTYPE_DEFAULTS["Storage"] in db_add.py
         "cache_MB": None,  # not present in source data
         "nvme": data.get("nvme"),
     }
 
 
 def parse_gpu_json(data):
+    # source gives "interface": "PCIe x16" but no generation number
+    interface = data.get("interface", "") or ""
+    lane_digits = "".join(ch for ch in interface if ch.isdigit())
+
     return {
         "clock_speed_MHz": data.get("core_base_clock"),
         "vram_GB": data.get("memory"),
         "vram_type": data.get("memory_type"),
-        "PCIe_16_gen": None,  # source gives "interface": "PCIe x16" but no gen number
+        "PCIe_gen": None,  # not available in source data
+        "PCIe_lanes": int(lane_digits) if lane_digits else None,
     }
 
 
@@ -162,7 +171,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     part_type = sys.argv[1]
-    folder = sys.argv[2] if len(sys.argv) > 2 else f"./{part_type.lower()}"
+    folder = ("loadJSON/" + part_type.lower())
 
     if part_type not in PART_TYPE_PARSERS:
         print(f"Unknown part type: {part_type}")
@@ -173,22 +182,33 @@ if __name__ == "__main__":
         print(f"No such folder: {folder}")
         sys.exit(1)
 
-    cnx = get_connection()  # adjust to however db_add exposes a connection
+    cnx = mysql.connector.connect(
+        host="localhost",
+        port=3306,
+        user="tbu",
+        password="",
+        database="localtest",
+    )
 
     loaded = 0
     failed = 0
 
-    for filename in os.listdir(folder):
-        if not filename.endswith(".json"):
-            continue
+    try:
+        for filename in os.listdir(folder):
+            if not filename.endswith(".json"):
+                continue
 
-        filepath = os.path.join(folder, filename)
-        try:
-            load_component_from_json(cnx, filepath, part_type)
-            print(f"Loaded: {filename}")
-            loaded += 1
-        except Exception as e:
-            print(f"Failed: {filename} -> {e}")
-            failed += 1
+            filepath = os.path.join(folder, filename)
+            try:
+                load_component_from_json(cnx, filepath, part_type)
+                print(f"Loaded: {filename}")
+                loaded += 1
+            except Exception as e:
+                print(f"Failed: {filename} -> {e}")
+                failed += 1
+
+        cnx.commit()
+    finally:
+        cnx.close()
 
     print(f"\nDone. {loaded} loaded, {failed} failed.")
