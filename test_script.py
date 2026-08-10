@@ -31,6 +31,7 @@ new_build = CurrentBuild(connection)
 print(new_build.output_compatible("Motherboards"))
 new_build.add_part_test("Motherboards", 1006)
 print(new_build.output_compatible("CPUs"))
+
 #new_build.exit_and_save()
 query = (
     "SELECT `Components`.`component_id`, `name` FROM `Motherboards` JOIN `Components` "

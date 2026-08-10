@@ -197,5 +197,33 @@ class CurrentBuild:
             #self.connection.commit()
             self.connection.rollback() #for testing
 
+class SavedBuild(CurrentBuild):
+    #loads an existing build from database instead of starting from scratch, and runs UPDATE upon exit_and_save
+    def __init__(self, DBconnection, config_name = "Untitled", user_name = "Guest"):
+        super().__init(DBconnection, config_name, user_name)
+        #search for existing build in database, if does not exist, error
+        try:
+            self.connection.start_transaction()
+            with self.connection.cursor(buffered=True) as cursor:
+                exists_query = "SELECT 1 FROM `Configurations` WHERE (`username` = %s AND `configuration_name` = %s)"
+                cursor.execute(exists_query, (self.user_name, self.config_name))
+                if(cursor.fetchone() is None):
+                    raise ValueError(f"User: {self.user_name} does not have a configuration named {self.config_name}")
+
+                #Build exists, so load data into picked_items_id
+                
+
+        except Exception:
+            pass
+            self.connection.rollback()
+            raise
+        else:
+            pass
+            self.connection.commit()
+
+    def exit_and_save(self):
+        #this needs to be update instead of insert
+        pass
+
     
     
