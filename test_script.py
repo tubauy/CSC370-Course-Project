@@ -28,5 +28,4 @@ new_build = CurrentBuild(connection)
 
 #new_build.exit_and_save()
 
-
 connection.close()

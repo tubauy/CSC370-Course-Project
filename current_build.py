@@ -47,7 +47,8 @@ class CurrentBuild:
     }
 
     def __init__(self, DBconnection, config_name = "Untitled", user_name = "Guest"):
-        #Passed connection object, because connection object (not cursor) needed for transaction functions 
+        #Passed connection object, because connection object (not cursor) needed for transaction functions
+        #Passed configuration_name for build and username of user making the build 
         #values of dict are component_id of picked parts
         self.picked_items_id = {
             "Motherboards": None,
@@ -115,6 +116,8 @@ class CurrentBuild:
     def exit_and_save(self):
         #save current config to DB Configurations table
         #using parameterized query as we are inserting values that the customer will input
+
+        #TODO: add transaction here - need to test how exceptions are handled using 'with' block for cursor- propogated up?
         query = (
             "INSERT INTO `Configurations`(`configuration_name`,`username`,`Motherboard_id`,`CPU_id`,`GPU_id`,`RAM_id`,`Storage_id`) "
             "VALUES (%(configuration_name)s, %(username)s, %(Motherboards)s, %(CPUs)s, %(GPUs)s, %(RAM)s, %(Storage)s, %(PSUs)s)"
