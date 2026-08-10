@@ -28,4 +28,7 @@ new_build = CurrentBuild(connection)
 
 #new_build.exit_and_save()
 
+print(new_build.output_compatible("Motherboards"))
+new_build.exit_and_save()
+
 connection.close()

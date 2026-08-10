@@ -77,10 +77,11 @@ class CurrentBuild:
 
         #builds large JOIN condition, using ON conditions from class variable dict
         #subquerys return parts with specific id using pick_items_id, then those subqueries are aliased and added to JOIN chain
+        #TODO: JOIN final result with components table to get names, prices etc
         if(type_to_output not in self.picked_items_id or self.already_picked(type_to_output)):
             return []
         else:
-            start_query = f"SELECT `{type_to_output}`.`component_id`, `{type_to_output}`.`name` FROM `{type_to_output}` "
+            start_query = f"SELECT `{type_to_output}`.`component_id` FROM `{type_to_output}` "
 
             #get list of items already picked
             current_picked = [k for k, v in self.picked_items_id.items() if v is not None]
@@ -124,19 +125,49 @@ class CurrentBuild:
             "INSERT INTO `Configurations`(`configuration_name`,`username`,`Motherboard_id`,`CPU_id`,`GPU_id`,`RAM_id`,`Storage_id`) "
             "VALUES (%(configuration_name)s, %(username)s, %(Motherboards)s, %(CPUs)s, %(GPUs)s, %(RAM)s, %(Storage)s, %(PSUs)s)"
         )
+
+        #dict of parameters for final insert query
         params_dict = {
             "Motherboards": self.picked_items_id["Motherboards"],
             "CPUs": self.picked_items_id["CPUs"],
             "GPUs": self.picked_items_id["GPUs"],
-            "RAM": self.picked_items_id["RAMs"],
+            "RAM": self.picked_items_id["RAM"],
             "Storage": self.picked_items_id["Storage"],
             "PSUs": self.picked_items_id["PSUs"],
             "config_name": self.config_name,
             "username": self.user_name
         }
-        with self.connection.cursor() as cursor:
-            cursor.execute(query, params_dict)
-            #TODO: by default doesn't commit, need to add connection.commit statement when function is ready
+        try:
+            self.connection.start_transaction()
+            with self.connection.cursor() as cursor:
+                #check if user exists
+                exists_query = "SELECT 1 FROM `Users` WHERE `username` = %s"
+                cursor.execute(exists_query,self.user_name)
+                if(cursor.fetchall() is None):
+                    raise ValueError(f"Unkown User: {self.user_name}")
+                    #Should we have seprate class to create users, to be called from CLI?
+                
+                #check if chosen parts exist in category tables
+                for k, v in self.picked_items_id:
+                    if(v is None):
+                        continue
+
+                    exists_query = f"SELECT 1 FROM `{k}` WHERE `component_id` = %s"
+                    cursor.execute(exists_query, v)
+                    if(cursor.fetchall() is None):
+                        raise ValueError(f"component_id {v} not found in {k} table")
+                
+                cursor.execute(query, params_dict)
+                #NOTE: mysqlconnector automatically replaces None with NULL
+                #TODO: by default doesn't commit, need to add connection.commit statement when function is ready
+        except Exception:
+            self.connection.rollback()
+            raise
+
+        else:
+            pass
+            #TODO: account for transaction already running error
+            self.connection.commit()
 
     
     
