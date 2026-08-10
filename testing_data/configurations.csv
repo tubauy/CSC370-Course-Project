@@ -1,0 +1,5 @@
+configuration_name,username,motherboard_id,ram_id,cpu_id,storage_id,gpu_id,psu_id
+AM5 Gaming Rig,Alice,11,21,1,41,32,51
+Intel Creator Workstation,Alice,17,22,7,43,39,56
+AM4 Budget Build,Bob,14,24,4,45,34,54
+Mismatched Test Build,Bob,16,28,9,48,35,58

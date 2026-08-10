@@ -1,0 +1,11 @@
+component_id,wattage,form_factor,efficiency_rating,atx_24_pin,eps_8_pin,pcie_12vhpwr,pcie_6_plus_2,sata,molex_4_pin
+51,850,ATX,80+ Gold,1,2,1,4,10,4
+52,650,ATX,80+ Gold,1,1,0,2,6,3
+53,750,ATX,80+ Gold,1,2,0,4,8,4
+54,550,ATX,80+ Bronze,1,1,0,2,5,2
+55,1000,ATX,80+ Platinum,1,2,0,6,10,4
+56,1000,ATX,80+ Titanium,1,2,1,4,8,4
+57,750,SFX,80+ Platinum,1,1,1,2,4,2
+58,500,ATX,80+ Bronze,1,1,0,2,4,2
+59,850,ATX,80+ Gold,1,2,0,4,8,4
+60,650,ATX,80+ Bronze,1,1,0,2,6,3
