@@ -117,7 +117,9 @@ class CurrentBuild:
         #save current config to DB Configurations table
         #using parameterized query as we are inserting values that the customer will input
 
-        #TODO: add transaction here - need to test how exceptions are handled using 'with' block for cursor- propogated up?
+        #TODO: add transaction here 
+        #Note: in source code of mysql-connector python, cursor.__exit__ does not handle exceptions, only runs self.close()
+        #   so, have to catch exceptions
         query = (
             "INSERT INTO `Configurations`(`configuration_name`,`username`,`Motherboard_id`,`CPU_id`,`GPU_id`,`RAM_id`,`Storage_id`) "
             "VALUES (%(configuration_name)s, %(username)s, %(Motherboards)s, %(CPUs)s, %(GPUs)s, %(RAM)s, %(Storage)s, %(PSUs)s)"
