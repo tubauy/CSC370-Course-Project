@@ -54,8 +54,14 @@ print(editing_build.output_compatible("Motherboards"))
 print(editing_build.test_output("Motherboards"))
 print(editing_build.output_compatible("GPUs"))
 editing_build.add_part_test("GPUs",1041)
+print("ADDED GPU")
+print(editing_build.output_compatible("GPUs"))
+print(editing_build.output_compatible("Storage"))
+editing_build.add_part_test("Storage", 1035)
+editing_build.exit_and_save()
 #editing_build.add_part_test
 
+connection.close()
 
 #new_build.exit_and_save()
 query = (
@@ -87,5 +93,3 @@ with connection.cursor() as cursor:
     cursor.execute(query4)
     print(cursor.fetchone()["name"])
 connection.rollback() """
-
-connection.close()

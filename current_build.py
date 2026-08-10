@@ -263,8 +263,8 @@ class SavedBuild(CurrentBuild):
             "`cpu_id` = %(CPUs)s, "
             "`storage_id` = %(Storage)s, "
             "`gpu_id` = %(GPUs)s, "
-            "`psu_id` = %(PSUs)s, "
-            "WHERE `configuration_name` = %(configuration_name)s AND `username` = %(username)s"
+            "`psu_id` = %(PSUs)s "
+            "WHERE (`configuration_name` = %(configuration_name)s AND `username` = %(username)s)"
         )
 
         try:
@@ -288,7 +288,7 @@ class SavedBuild(CurrentBuild):
                         continue
 
                     exists_query = f"SELECT 1 FROM `{k}` WHERE `component_id` = %s"
-                    cursor.execute(exists_query, v)
+                    cursor.execute(exists_query, (v,))
                     if(cursor.fetchone() is None):
                         raise ValueError(f"component_id {v} not found in {k} table")
 
@@ -298,8 +298,8 @@ class SavedBuild(CurrentBuild):
             self.connection.rollback()
             raise
         else:
-            #self.connection.commit()
-            self.connection.rollback() #for testing
+            self.connection.commit()
+            #self.connection.rollback() #for testing
 
     
     
