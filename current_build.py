@@ -99,7 +99,11 @@ class CurrentBuild:
 
             result = None
             try:
-                self.connection.start_transaction()
+                #READ COMMITTED is good enough, because we must check the chosen parts before we insert the build
+                #into the configurations table anyway, and there will be a potentially very large gap of time
+                #between the user picking parts and saving their build to the database, so parts they have chosen
+                #could be deleted from the DB in the interim no matter what isolation level we choose (unless we have 2 hour long transactions!)
+                self.connection.start_transaction(isolation_level = "READ COMMITTED")
                 with self.connection.cursor() as cursor:
                     cursor.execute(start_query, self.picked_items_id)
                     #using parameters for values of picked_items_id, as those values can be input by user
@@ -150,7 +154,11 @@ class CurrentBuild:
         }
 
         try:
-            self.connection.start_transaction()
+            #using repeatble read isolation level, because were are checking if parts user has picked exist in tables
+            #before we insert build, and non-repeatable reads could lead to violating constraints
+            #However, phantom tuples would only affect transaction if one username is saving two different builds 
+            #with the same configuration_name at the same time, is unlikely, and should not be allowed by our user interface anyway
+            self.connection.start_transaction(isolation_level = "REPEATABLE READ")
             #using buffered cursor to prevent unfetched results error
             with self.connection.cursor(buffered=True) as cursor:
                 #check if user exists
@@ -160,6 +168,8 @@ class CurrentBuild:
                     raise ValueError(f"Unkown User: {self.user_name}")
                     #Should we have seprate class to create users, to be called from CLI?
                 
+                #check if a user already has a configuration with this name
+                #TODO: Ask if user wants to edit current build, or quit without saving (handle from CLI)
                 exists_query = "SELECT 1 FROM `Configurations` WHERE (`username` = %s AND `configuration_name` = %s)"
                 cursor.execute(exists_query, (self.user_name, self.config_name))
                 if(cursor.fetchone() is not None):
@@ -183,7 +193,6 @@ class CurrentBuild:
             raise
 
         else:
-            #TODO: account for transaction already running error
             #self.connection.commit()
             self.connection.rollback() #for testing
 
