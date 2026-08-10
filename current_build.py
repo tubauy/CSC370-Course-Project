@@ -81,7 +81,8 @@ class CurrentBuild:
         if(type_to_output not in self.picked_items_id or self.already_picked(type_to_output)):
             return []
         else:
-            start_query = f"SELECT `{type_to_output}`.`component_id` FROM `{type_to_output}` "
+            start_query = f"SELECT `{type_to_output}`.`component_id`, `Components`.`name` FROM `{type_to_output}` JOIN `Components` "
+            start_query += f"ON (`{type_to_output}`.`component_id` = `Components`.`component_id`) "
 
             #get list of items already picked
             current_picked = [k for k, v in self.picked_items_id.items() if v is not None]

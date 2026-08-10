@@ -29,6 +29,15 @@ new_build = CurrentBuild(connection)
 #new_build.exit_and_save()
 
 print(new_build.output_compatible("Motherboards"))
-new_build.exit_and_save()
+#new_build.exit_and_save()
+query = (
+    "SELECT `Components`.`component_id`, `name` FROM `Motherboards` JOIN `Components` "
+    "ON (`Motherboards`.`component_id` = `Components`.`component_id`) LIMIT 10"
+)
+""" connection.start_transaction()
+with connection.cursor() as cursor:
+    cursor.execute(query)
+    print(cursor.fetchall()) 
+    connection.rollback()"""
 
 connection.close()
