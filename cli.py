@@ -51,6 +51,7 @@ def get_next_type(build_so_far):
 
 def build_from_scratch_option():
     #setup a new build object
+    #where to initalise mysql-connector.connection() object?
     scratch_build = CurrentBuild()
     #priority_list = get_priority()
 

@@ -151,14 +151,20 @@ class CurrentBuild:
 
         try:
             self.connection.start_transaction()
-            with self.connection.cursor() as cursor:
+            #using buffered cursor to prevent unfetched results error
+            with self.connection.cursor(buffered=True) as cursor:
                 #check if user exists
                 exists_query = "SELECT 1 FROM `Users` WHERE `username` = %s"
                 cursor.execute(exists_query, (self.user_name,))
-                if(cursor.fetchall() is None):
+                if(cursor.fetchone() is None):
                     raise ValueError(f"Unkown User: {self.user_name}")
                     #Should we have seprate class to create users, to be called from CLI?
                 
+                exists_query = "SELECT 1 FROM `Configurations` WHERE (`username` = %s AND `configuration_name` = %s)"
+                cursor.execute(exists_query, (self.user_name, self.config_name))
+                if(cursor.fetchone() is not None):
+                    raise ValueError(f"User: {self.user_name} already has a configuration named {self.config_name}")
+
                 #check if chosen parts exist in category tables
                 for k, v in self.picked_items_id.items():
                     if(v is None):
@@ -166,7 +172,7 @@ class CurrentBuild:
 
                     exists_query = f"SELECT 1 FROM `{k}` WHERE `component_id` = %s"
                     cursor.execute(exists_query, v)
-                    if(cursor.fetchall() is None):
+                    if(cursor.fetchone() is None):
                         raise ValueError(f"component_id {v} not found in {k} table")
                 
                 cursor.execute(query, params_dict)
