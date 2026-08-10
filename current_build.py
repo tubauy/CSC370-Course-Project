@@ -177,7 +177,6 @@ class CurrentBuild:
             raise
 
         else:
-            pass
             #TODO: account for transaction already running error
             #self.connection.commit()
             self.connection.rollback() #for testing
