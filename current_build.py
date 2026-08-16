@@ -186,8 +186,8 @@ class CurrentBuild:
                 
                 #check if a user already has a configuration with this name
                 #TODO: Ask if user wants to edit current build, or quit without saving (handle from CLI)
-                exists_query = "SELECT 1 FROM `Configurations` WHERE (`username` = %s AND `configuration_name` = %s)"
-                cursor.execute(exists_query, (self.user_name, self.config_name))
+                exists_query = "SELECT 1 FROM `{view_name}` WHERE (`configuration_name` = %s)"
+                cursor.execute(exists_query, (self.config_name,))
                 if(cursor.fetchone() is not None):
                     raise ValueError(f"User: {self.user_name} already has a configuration named {self.config_name}")
 
@@ -223,22 +223,23 @@ class SavedBuild(CurrentBuild):
     def __init__(self, DBconnection, config_name = "Untitled", user_name = "Guest"):
         super().__init__(DBconnection, config_name, user_name)
         #search for existing build in database, if does not exist, error
+        self.view_name = f"`Configurations_{self.user_name}`"
         try:
             self.connection.start_transaction(isolation_level = "REPEATABLE READ")
             #using buffered cursor to prevent unfetched results errors
             with self.connection.cursor(dictionary=True, buffered=True) as cursor:
                 #should also check if user exists?
-                exists_query = "SELECT 1 FROM `Configurations` WHERE (`username` = %s AND `configuration_name` = %s)"
-                cursor.execute(exists_query, (self.user_name, self.config_name))
+                exists_query = f"SELECT 1 FROM `{self.view_name}` WHERE (`configuration_name` = %s)"
+                cursor.execute(exists_query, (self.config_name,))
                 if(cursor.fetchone() is None):
                     raise ValueError(f"User: {self.user_name} does not have a configuration named {self.config_name}")
                 #check for multiple returns?
                 #Build exists, so load data into picked_items_id
                 init_query = (
                     "SELECT `motherboard_id`,`cpu_id`,`gpu_id`,`ram_id`,`storage_id`,`psu_id`"
-                    "FROM `Configurations` WHERE `configuration_name` = %s AND `username` = %s"
+                    f"FROM `{self.view_name}` WHERE `configuration_name` = %s"
                 )
-                cursor.execute(init_query, (self.config_name, self.user_name))
+                cursor.execute(init_query, (self.config_name,))
                 results_dict = dict(cursor.fetchone())
                 #TODO: throw error if dict key doesnt exist (to prevent annoying typo bugs)
                 #TODO: clean up with loop
@@ -272,14 +273,14 @@ class SavedBuild(CurrentBuild):
                     "username": self.user_name
         }
         edit_query = (
-            "UPDATE `Configurations` SET "
+            f"UPDATE `{self.view_name}` SET "
             "`motherboard_id` = %(Motherboards)s, "
             "`ram_id` = %(RAM)s, "
             "`cpu_id` = %(CPUs)s, "
             "`storage_id` = %(Storage)s, "
             "`gpu_id` = %(GPUs)s, "
             "`psu_id` = %(PSUs)s "
-            "WHERE (`configuration_name` = %(configuration_name)s AND `username` = %(username)s)"
+            "WHERE (`configuration_name` = %(configuration_name)s)"
         )
 
         try:
@@ -292,8 +293,8 @@ class SavedBuild(CurrentBuild):
                     #raise ValueError(f"Unkown User: {self.user_name}")
 
                 #check if config exists (opposite condition as CurrentBuild)
-                exists_query = "SELECT 1 FROM `Configurations` WHERE (`username` = %s AND `configuration_name` = %s)"
-                cursor.execute(exists_query, (self.user_name, self.config_name))
+                exists_query = f"SELECT 1 FROM `{self.view_name}` WHERE (`configuration_name` = %s)"
+                cursor.execute(exists_query, (self.config_name,))
                 if(cursor.fetchone() is None):
                     raise ValueError(f"User: {self.user_name} does not have a configuration named {self.config_name}")
 
