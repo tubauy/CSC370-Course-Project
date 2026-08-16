@@ -16,6 +16,11 @@ def get_username(connection):
             cursor.execute(username_exists_query, username_input)
             if(cursor.fetchone() is None):
                 print("USERNAME DOES NOT EXIST, CREATING NEW USER")
+                create_user_query = (
+                    "INSERT INTO `Users` VALUES (%s,%s,NOW())"
+                )
+                email = f"{username_input}@test.com"
+                cursor.execute(create_user_query,(username_input,email)) 
                 #add create view here
 
                 view_name = f"Configurations_{username_input}"

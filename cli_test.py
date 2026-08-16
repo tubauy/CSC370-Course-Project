@@ -2,6 +2,7 @@ import mysql.connector
 import os # for .env
 from current_build import CurrentBuild
 from cli import Client
+from user_login import get_username
 
 # load all .env variables into os.environ
 with open(".env", "r") as file:
@@ -23,7 +24,8 @@ connection = mysql.connector.connect(
     database = os.environ["database"]
 )
 
-client = Client(connection=connection)
+given_username = get_username(connection)
+client = Client(connection=connection, username=given_username)
 client.start()
 #connection.close()
 #TODO: MAKE SURE CONNECTION CLOSED
