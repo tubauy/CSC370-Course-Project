@@ -2,18 +2,35 @@ import mysql.connector
 #takes a connection object
 #returns the username of a user after login
 def get_username(connection):
-    selection = input("ENTER USERNAME: ")
-    username_query = "SELECT 1 FROM `Users` WHERE `username` = %s"
+    max_username_length = 255
+    username_input = input("ENTER USERNAME: ")
+    #check for illegal charecters?
+    while(len(username_input) > max_username_length or len(username_input) <= 0):
+        print("Please input a valid length username")
+        username_input = input("ENTER USERNAME: ")
+
+    username_exists_query = "SELECT 1 FROM `Users` WHERE `username` = %s"
     connection.start_transaction(isolation_level = "SERIALIZABLE")
     try:
         with connection.cursor(buffered=True) as cursor:
-            cursor.execute(username_query, selection)
+            cursor.execute(username_exists_query, username_input)
             if(cursor.fetchone() is None):
                 print("USERNAME DOES NOT EXIST, CREATING NEW USER")
                 #add create view here
+
+                view_name = f"Configurations_{username_input}"
+                
+                create_view_query = (
+                    "CREATE OR REPLACE VIEW `%s` AS "
+                    "SELECT * FROM `Configurations` WHERE `username` = %s"
+                )
+
+                cursor.execute(create_view_query, (view_name, username_input))
             else:
                 print("USERNAME FOUND")
     except Exception:
         connection.rollback()
         raise
+    else:
+        return username_input
 
