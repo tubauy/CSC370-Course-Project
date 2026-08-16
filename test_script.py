@@ -49,7 +49,7 @@ connection = mysql.connector.connect(
     database = os.environ["database"]
 )
 
-editing_build = SavedBuild(connection, config_name = "First_upload")
+""" editing_build = SavedBuild(connection, config_name = "First_upload")
 print(editing_build.output_compatible("Motherboards"))
 print(editing_build.test_output("Motherboards"))
 print(editing_build.output_compatible("GPUs"))
@@ -58,7 +58,7 @@ print("ADDED GPU")
 print(editing_build.output_compatible("GPUs"))
 print(editing_build.output_compatible("Storage"))
 editing_build.add_part_test("Storage", 1035)
-editing_build.exit_and_save()
+editing_build.exit_and_save() """
 #editing_build.add_part_test
 
 connection.close()

@@ -1,6 +1,7 @@
 #class to track current user config
 #passed a mysqlconnector connection object to use when instantiated
 #TODO: make sure inputs are sanitized
+#TODO: add method for deleting existing build
 import mysql.connector
 class CurrentBuild:
     #class variable of ON conditions for JOINS
@@ -13,6 +14,8 @@ class CurrentBuild:
         # sort key before indexing dict?
     #TODO add indexes in DB to speed joins
     #TODO: change from f strings to parameterized queries, safer
+    #NOTE: storage schema may need refactor to make comparison with motherboards easier
+    #NOTE: typo in INTerface attribute of stroage (strange capitalization)
     join_conditions_dict = {
         ("CPUs","Motherboards"): "ON (`CPUs`.`socket_type` = `Motherboards`.`socket_type`)",
         ("Motherboards","CPUs"): "ON (`CPUs`.`socket_type` = `Motherboards`.`socket_type`)",
@@ -22,11 +25,11 @@ class CurrentBuild:
         ("RAM","CPUs"): "ON (`CPUs`.`ddr_version` = `RAM`.`ddr_version` AND `CPUs`.`max_ram_capacity_MB` >= `RAM`.`capacity_MB`)",
         ("CPUs","Storage"):"",
         ("Storage","CPUs"):"",
-        ("Motherboards","GPUs"):"",
-        ("GPUs","Motherboards"):"",
+        ("Motherboards","GPUs"):"ON (`Motherboards`.`PCIe_16_slots` >= 1 AND `Motherboards`.`PCIe_16_gen` >= `GPUs`.`PCIe_16_gen`)",
+        ("GPUs","Motherboards"):"ON (`Motherboards`.`PCIe_16_slots` >= 1 AND `Motherboards`.`PCIe_16_gen` >= `GPUs`.`PCIe_16_gen`)",
         ("Motherboards","RAM"): "ON (`Motherboards`.`ddr_version` = `RAM`.`ddr_version`)",
         ("RAM","Motherboards"): "ON (`Motherboards`.`ddr_version` = `RAM`.`ddr_version`)",
-        ("Motherboards","Storage"):"",
+        ("Motherboards","Storage"): "",
         ("Storage","Motherboards"):"",
         ("GPUs","RAM"):"",
         ("RAM","GPUs"):"",
