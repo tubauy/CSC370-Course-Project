@@ -13,7 +13,7 @@ def get_username(connection):
     connection.start_transaction(isolation_level = "SERIALIZABLE")
     try:
         with connection.cursor(buffered=True) as cursor:
-            cursor.execute(username_exists_query, username_input)
+            cursor.execute(username_exists_query, (username_input,)
             if(cursor.fetchone() is None):
                 print("USERNAME DOES NOT EXIST, CREATING NEW USER")
                 create_user_query = (
