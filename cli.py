@@ -1,5 +1,5 @@
-from current_build import CurrentBuild
-
+from current_build import CurrentBuild, SavedBuild
+#TODO: error handling (for wrong name input etc)
 class Client:
     def __init__(self, connection):
         # selections can be converted to int if needed
@@ -34,7 +34,12 @@ class Client:
         elif selection == "2":
             "Build edit not yet implemented"
             # enter username -> list builds -> pick
-            return
+            existing_build_name = input("Name of existing build?")
+            while len(new_build_name) <= 0 or len(new_build_name) > self._max_build_name_length:
+                print("Name length should be from 1 to 255 characters")
+                existing_build_name = input("Name of existing build: ")
+            self.current_build = SavedBuild(self.connection, config_name=existing_build_name)
+            self.edit_build_loop()
 
         self.print_build_info()
 
@@ -54,8 +59,15 @@ class Client:
             component_str = self.compoment_selections[selection]
 
             # store selected component into cache
-            self.component_cache[component_str] = self.current_build.output_compatible(component_str)
-            self.build_component_cache_dict(component_str)
+            try:
+                self.component_cache[component_str] = self.current_build.output_compatible(component_str)
+                #   what is the purpose of line 62 and also line 64?
+                self.build_component_cache_dict(component_str)
+            except ValueError:
+                print(f"Already Selected that part. REMOVED {component_str} SELECTION")
+                self.current_build.remove_pick(component_str)
+                continue
+
             # print(self.component_cache[component_str])
             self.print_component_selection(component_str)
 

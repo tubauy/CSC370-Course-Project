@@ -25,3 +25,4 @@ connection = mysql.connector.connect(
 
 client = Client(connection=connection)
 client.start()
+#connection.close()

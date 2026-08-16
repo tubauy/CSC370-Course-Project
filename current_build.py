@@ -77,12 +77,16 @@ class CurrentBuild:
     def output_compatible(self, type_to_output):
         #output parts in category type_to_output that are compatible with current picks (from picked_items_id)
         #returns parts as list of tuples in form (id, name)
+        #don't need to check if part already picked, because user might want to re-select part
 
         #builds large JOIN condition, using ON conditions from class variable dict
         #subquerys return parts with specific id using pick_items_id, then those subqueries are aliased and added to JOIN chain
         #TODO: JOIN final result with components table to get names, prices etc
         if(type_to_output not in self.picked_items_id or self.already_picked(type_to_output)):
-            return []
+            #returns empty list if part already picked (caused bug in CLI)
+            #return []
+            raise ValueError(f"Already picked part {type_to_output}")
+            #pass
         else:
             start_query = f"SELECT `{type_to_output}`.`component_id`, `Components`.`name` FROM `{type_to_output}` JOIN `Components` "
             start_query += f"ON (`{type_to_output}`.`component_id` = `Components`.`component_id`) "
@@ -119,7 +123,9 @@ class CurrentBuild:
                 self.connection.commit()
                 #MUST ALWAYS CLOSE TRANSACTIONS
                 return result
-
+            
+    def remove_pick(self, category):
+        self.picked_items_id[category] = None
 
     def add_part_test(self,category, partId: int):
         #add given part id to dict of picked items
