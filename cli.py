@@ -93,10 +93,11 @@ class Client:
     def print_build_info(self):
         print("-----------------------")
         print("Final build components:")
-        for key in self.component_cache.keys():
+        """ for key in self.component_cache.keys():
             cid = self.current_build.picked_items_id[key]
             name = self.component_cache[key][str(cid)]
-            print(f"{key}: {name}")
+            print(f"{key}: {name}") """
+        print(self.current_build)
         print("-----------------------")
 
 

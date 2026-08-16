@@ -65,6 +65,12 @@ class CurrentBuild:
         self.connection = DBconnection
         self.config_name = config_name
         self.user_name = user_name
+    
+    def __str__(self):
+        string_out = ""
+        for k in self.picked_items_id:
+            string_out += f"{k}: {self.picked_items_id[k]} \n"
+        return string_out
 
 
     def already_picked(self, type):
@@ -136,7 +142,6 @@ class CurrentBuild:
         else:
             pass
             #throw error here?
-            
 
 
     def exit_and_save(self):
