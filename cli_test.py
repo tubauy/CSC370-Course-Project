@@ -26,3 +26,4 @@ connection = mysql.connector.connect(
 client = Client(connection=connection)
 client.start()
 #connection.close()
+#TODO: MAKE SURE CONNECTION CLOSED

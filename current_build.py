@@ -67,7 +67,7 @@ class CurrentBuild:
         self.user_name = user_name
     
     def __str__(self):
-        string_out = ""
+        string_out = f"{self.config_name} \n"
         for k in self.picked_items_id:
             string_out += f"{k}: {self.picked_items_id[k]} \n"
         return string_out

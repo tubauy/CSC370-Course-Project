@@ -3,8 +3,8 @@ from current_build import CurrentBuild, SavedBuild
 class Client:
     def __init__(self, connection):
         # selections can be converted to int if needed
-        self.compoment_selections = {"1": "Motherboards", "2": "CPUs", "3": "RAM", "4": "Storage", "5": "GPU", "6": "PSUs"}
-        self.start_selections = {"1": "Build a PC from scratch", "2": "Edit your existing build (currently not working)"}
+        self.compoment_selections = {"1": "Motherboards", "2": "CPUs", "3": "RAM", "4": "Storage", "5": "GPUs", "6": "PSUs"}
+        self.start_selections = {"1": "Build a PC from scratch", "2": "Edit your existing build"}
         self.component_cache = {}
         self._max_build_name_length = 255
 
@@ -24,6 +24,7 @@ class Client:
             selection = input("Select: ")
         
         print(f"You chose to {self.start_selections[selection]}")
+        #if we exited edit_build_loop, we can save build
         if selection == "1":
             new_build_name = input("Name your build: ")
             while len(new_build_name) <= 0 or len(new_build_name) > self._max_build_name_length:
@@ -31,17 +32,37 @@ class Client:
                 new_build_name = input("Name your build: ")
             self.current_build = CurrentBuild(self.connection, config_name=new_build_name)
             self.edit_build_loop()
+            try:
+                self.current_build.exit_and_save()
+            except ValueError as e:
+                print(e)
+                print("BUILD WAS NOT SAVED")
+            else:
+                self.print_build_info()
+
         elif selection == "2":
-            "Build edit not yet implemented"
+            #"Build edit not yet implemented"
             # enter username -> list builds -> pick
-            existing_build_name = input("Name of existing build?")
-            while len(new_build_name) <= 0 or len(new_build_name) > self._max_build_name_length:
+            existing_build_name = input("Name of existing build?: ")
+            while len(existing_build_name) <= 0 or len(existing_build_name) > self._max_build_name_length:
                 print("Name length should be from 1 to 255 characters")
                 existing_build_name = input("Name of existing build: ")
-            self.current_build = SavedBuild(self.connection, config_name=existing_build_name)
-            self.edit_build_loop()
+            try:
+                self.current_build = SavedBuild(self.connection, config_name=existing_build_name)
+            except ValueError as e:
+                print(e)
+            else:
+                self.edit_build_loop()
 
-        self.print_build_info()
+                try:
+                    self.current_build.exit_and_save()
+                except ValueError as e:
+                    print(e)
+                    print("BUILD WAS NOT SAVED")
+                else:
+                    self.print_build_info()
+
+        print("DONE")
 
     def edit_build_loop(self):
         while True:
@@ -98,6 +119,7 @@ class Client:
             name = self.component_cache[key][str(cid)]
             print(f"{key}: {name}") """
         print(self.current_build)
+        print("BUILD SAVED SUCCESSFULLY")
         print("-----------------------")
 
 
