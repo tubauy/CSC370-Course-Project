@@ -151,8 +151,9 @@ class CurrentBuild:
         #TODO: add transaction here 
         #Note: in source code of mysql-connector python, cursor.__exit__ does not handle exceptions, only runs self.close()
         #   so, have to catch exceptions
+        view_name = f"`Configurations_{self.user_name}`"
         query = (
-            "INSERT INTO `Configurations`(`configuration_name`,`username`,`motherboard_id`,`ram_id`,`cpu_id`,`storage_id`,`gpu_id`,`psu_id`) "
+            f"INSERT INTO `{view_name}`(`configuration_name`,`username`,`motherboard_id`,`ram_id`,`cpu_id`,`storage_id`,`gpu_id`,`psu_id`) "
             "VALUES (%(configuration_name)s, %(username)s, %(Motherboards)s, %(RAM)s, %(CPUs)s, %(Storage)s, %(GPUs)s, %(PSUs)s)"
         )
 
@@ -165,7 +166,7 @@ class CurrentBuild:
             "Storage": self.picked_items_id["Storage"],
             "PSUs": self.picked_items_id["PSUs"],
             "configuration_name": self.config_name,
-            "username": self.user_name
+            "username": self.user_name,
         }
 
         try:

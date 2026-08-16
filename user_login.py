@@ -32,5 +32,6 @@ def get_username(connection):
         connection.rollback()
         raise
     else:
+        connection.commit()
         return username_input
 
