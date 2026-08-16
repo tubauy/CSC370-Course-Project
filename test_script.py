@@ -22,12 +22,12 @@ connection = mysql.connector.connect(
     database = os.environ["database"]
 )
 
-new_build = CurrentBuild(connection, config_name = "First_upload")
+#new_build = CurrentBuild(connection, config_name = "First_upload")
 
 #Insert test script for oracle server here
 
 
-print("TESTING SCRATCH BUILD")
+#print("TESTING SCRATCH BUILD")
 #print(new_build.output_compatible("Motherboards"))
 #new_build.add_part_test("Motherboards", 1006)
 #print("ADDED MB")
@@ -50,16 +50,19 @@ connection = mysql.connector.connect(
 )
 
 """ editing_build = SavedBuild(connection, config_name = "First_upload")
-print(editing_build.output_compatible("Motherboards"))
-print(editing_build.test_output("Motherboards"))
-print(editing_build.output_compatible("GPUs"))
-editing_build.add_part_test("GPUs",1041)
-print("ADDED GPU")
-print(editing_build.output_compatible("GPUs"))
-print(editing_build.output_compatible("Storage"))
-editing_build.add_part_test("Storage", 1035)
+editing_build.output_compatible("Motherboards")
 editing_build.exit_and_save() """
+""" new_build2 = CurrentBuild(connection, config_name = "Test_build_2")
+print(new_build2.output_compatible("Motherboards"))
+new_build2.add_part_test("Motherboards",1001)
+new_build2.exit_and_save() """
 #editing_build.add_part_test
+
+""" editing_build2 = SavedBuild(connection, config_name = "Test_build_2")
+print(editing_build2.output_compatible("Motherboards"))
+print(editing_build2.output_compatible("GPUs"))
+editing_build2.add_part_test("GPUs", 1050)
+editing_build2.exit_and_save() """
 
 connection.close()
 
