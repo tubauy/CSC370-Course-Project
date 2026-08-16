@@ -1,7 +1,7 @@
 from current_build import CurrentBuild, SavedBuild
 #TODO: error handling (for wrong name input etc)
 class Client:
-    def __init__(self, connection):
+    def __init__(self, connection, username = "Guest"):
         # selections can be converted to int if needed
         self.compoment_selections = {"1": "Motherboards", "2": "CPUs", "3": "RAM", "4": "Storage", "5": "GPUs", "6": "PSUs"}
         self.start_selections = {"1": "Build a PC from scratch", "2": "Edit your existing build"}
@@ -9,6 +9,7 @@ class Client:
         self._max_build_name_length = 255
 
         self.connection = connection
+        self.username = username
         self.current_build = None
 
     def start(self):
@@ -30,7 +31,7 @@ class Client:
             while len(new_build_name) <= 0 or len(new_build_name) > self._max_build_name_length:
                 print("Name length should be from 1 to 255 characters")
                 new_build_name = input("Name your build: ")
-            self.current_build = CurrentBuild(self.connection, config_name=new_build_name)
+            self.current_build = CurrentBuild(self.connection, config_name=new_build_name,user_name = self.username)
             self.edit_build_loop()
             try:
                 self.current_build.exit_and_save()
@@ -48,7 +49,7 @@ class Client:
                 print("Name length should be from 1 to 255 characters")
                 existing_build_name = input("Name of existing build: ")
             try:
-                self.current_build = SavedBuild(self.connection, config_name=existing_build_name)
+                self.current_build = SavedBuild(self.connection, config_name=existing_build_name, user_name=self.username)
             except ValueError as e:
                 print(e)
             else:
