@@ -276,7 +276,7 @@ class SavedBuild(CurrentBuild):
                 #if(cursor.fetchone() is None):
                     #raise ValueError(f"Unkown User: {self.user_name}")
 
-                #check if config exists
+                #check if config exists (opposite condition as CurrentBuild)
                 exists_query = "SELECT 1 FROM `Configurations` WHERE (`username` = %s AND `configuration_name` = %s)"
                 cursor.execute(exists_query, (self.user_name, self.config_name))
                 if(cursor.fetchone() is None):
