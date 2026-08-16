@@ -20,9 +20,6 @@ SUBTYPE_DEFAULTS = {
     "Motherboards": {
         "form_factor": None, "socket_type": None,
         "ddr_version": None, "ram_slots": None,
-        "PCIe_1_gen": None, "PCIe_1_slots": None,
-        "PCIe_4_gen": None, "PCIe_4_slots": None,
-        "PCIe_8_gen": None, "PCIe_8_slots": None,
         "PCIe_16_gen": None, "PCIe_16_slots": None,
         "M_2_slots": None, "SATA_6_ports": None,
         "SATA_3_ports": None, "U_2_ports": None,
@@ -41,7 +38,7 @@ SUBTYPE_DEFAULTS = {
     },
     "GPUs": {
         "clock_speed_MHz": None, "vram_GB": None, "vram_type": None,
-        "PCIe_gen": None, "PCIe_lanes": None,
+        "PCIe_16_gen": None,
     },
     "PSUs": {
         "wattage": None, "form_factor": None, "efficiency_rating": None,

@@ -102,16 +102,19 @@ def parse_storage_json(data):
 
 
 def parse_gpu_json(data):
-    # source gives "interface": "PCIe x16" but no generation number
     interface = data.get("interface", "") or ""
-    lane_digits = "".join(ch for ch in interface if ch.isdigit())
+    pcie_16_gen = None
+    for part in interface.split():
+        try:
+            pcie_16_gen = float(part)
+        except ValueError:
+            pass
 
     return {
         "clock_speed_MHz": data.get("core_base_clock"),
         "vram_GB": data.get("memory"),
         "vram_type": data.get("memory_type"),
-        "PCIe_gen": None,  # not available in source data
-        "PCIe_lanes": int(lane_digits) if lane_digits else None,
+        "PCIe_16_gen": pcie_16_gen,
     }
 
 
@@ -171,7 +174,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     part_type = sys.argv[1]
-    folder = ("loadJSON/" + part_type.lower())
+    folder = ("open-db-json/" + part_type)
 
     if part_type not in PART_TYPE_PARSERS:
         print(f"Unknown part type: {part_type}")

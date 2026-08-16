@@ -221,3 +221,9 @@ __marimo__/
 
 #Stupid MacBook things
 .DS_Store
+
+
+# This folder is huge and also has all the json data so
+# for now i will not push it but it has been tested on
+# the local server.
+open-db-json/
