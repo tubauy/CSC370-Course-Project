@@ -54,6 +54,7 @@ class Client:
             else:
                 self.edit_build_loop()
 
+                #unessecary duplicated code, refactor later
                 try:
                     self.current_build.exit_and_save()
                 except ValueError as e:
