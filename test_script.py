@@ -58,11 +58,9 @@ new_build2.add_part_test("Motherboards",1001)
 new_build2.exit_and_save() """
 #editing_build.add_part_test
 
-""" editing_build2 = SavedBuild(connection, config_name = "Test_build_2")
-print(editing_build2.output_compatible("Motherboards"))
-print(editing_build2.output_compatible("GPUs"))
-editing_build2.add_part_test("GPUs", 1050)
-editing_build2.exit_and_save() """
+editing_build2 = SavedBuild(connection, config_name = "Cats_Heater", user_name="Guest")
+print(editing_build2.output_compatible("Storage"))
+editing_build2.exit_and_save()
 
 connection.close()
 

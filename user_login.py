@@ -22,21 +22,27 @@ def get_username(connection):
                 email = f"{username_input}@test.com"
                 cursor.execute(create_user_query,(username_input,email)) 
                 #add create view here
-
-                view_name = f"Configurations_{username_input}"
-                
-                create_view_query = (
-                    "CREATE OR REPLACE VIEW `%s` AS "
-                    "SELECT * FROM `Configurations` WHERE `username` = %s"
-                )
-
-                cursor.execute(create_view_query, (view_name, username_input))
             else:
                 print("USERNAME FOUND")
     except Exception:
         connection.rollback()
+        print("ERROR searching Users")
         raise
     else:
-        connection.commit()
-        return username_input
+        try:
+            view_name = f"Configurations_{username_input}"
+                            
+            create_view_query = (
+                "CREATE OR REPLACE VIEW `%s` AS "
+                "SELECT * FROM `Configurations` WHERE `username` = %s"
+            )
+
+            cursor.execute(create_view_query, (view_name, username_input))
+        except Exception:
+            connection.rollback()
+            raise
+
+        else:
+            connection.commit()
+            return username_input
 

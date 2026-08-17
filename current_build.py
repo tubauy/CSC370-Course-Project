@@ -151,7 +151,7 @@ class CurrentBuild:
         #TODO: add transaction here 
         #Note: in source code of mysql-connector python, cursor.__exit__ does not handle exceptions, only runs self.close()
         #   so, have to catch exceptions
-        view_name = f"`Configurations_{self.user_name}`"
+        view_name = f"Configurations_{self.user_name}"
         query = (
             f"INSERT INTO `{view_name}`(`configuration_name`,`username`,`motherboard_id`,`ram_id`,`cpu_id`,`storage_id`,`gpu_id`,`psu_id`) "
             "VALUES (%(configuration_name)s, %(username)s, %(Motherboards)s, %(RAM)s, %(CPUs)s, %(Storage)s, %(GPUs)s, %(PSUs)s)"
@@ -223,7 +223,7 @@ class SavedBuild(CurrentBuild):
     def __init__(self, DBconnection, config_name = "Untitled", user_name = "Guest"):
         super().__init__(DBconnection, config_name, user_name)
         #search for existing build in database, if does not exist, error
-        self.view_name = f"`Configurations_{self.user_name}`"
+        self.view_name = f"Configurations_{self.user_name}"
         try:
             self.connection.start_transaction(isolation_level = "REPEATABLE READ")
             #using buffered cursor to prevent unfetched results errors
