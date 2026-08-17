@@ -11,6 +11,8 @@ class Client:
         self.connection = connection
         self.username = username
         self.current_build = None
+        self.build_count = 0
+        self.build_list = []
 
     def start(self):
         print("-----------------------------")
@@ -44,10 +46,17 @@ class Client:
         elif selection == "2":
             #"Build edit not yet implemented"
             # enter username -> list builds -> pick
-            existing_build_name = input("Name of existing build?: ")
-            while len(existing_build_name) <= 0 or len(existing_build_name) > self._max_build_name_length:
-                print("Name length should be from 1 to 255 characters")
-                existing_build_name = input("Name of existing build: ")
+            self.print_boilds_of_current_user()
+            existing_build_name = self.get_existing_build_input()
+
+            if existing_build_name == None:
+                print("Error: Cannot select existing build. Exiting")
+                return
+
+            # while len(existing_build_name) <= 0 or len(existing_build_name) > self._max_build_name_length:
+            #     print("Name length should be from 1 to 255 characters")
+            #     existing_build_name = input("Name of existing build: ")
+
             try:
                 self.current_build = SavedBuild(self.connection, config_name=existing_build_name, user_name=self.username)
             except ValueError as e:
@@ -112,6 +121,33 @@ class Client:
         cur_output = self.current_build.output_compatible(component_str)
         for (cid, name) in cur_output:
             self.component_cache[component_str][str(cid)] = name
+
+    def print_boilds_of_current_user(self):
+        with self.connection.cursor() as cursor:
+            cursor.execute(f"SELECT * FROM Configurations WHERE username='{self.username}'")
+            builds = cursor.fetchall()
+            print("Build names:")
+
+            # reset, print out then add to self's build list and count
+            self.build_count = 0
+            self.build_list = []
+            for build in builds:
+                self.build_count += 1
+                self.build_list.append(build[0])
+                print("   ", build[0])
+            self.connection.commit()
+
+    def get_existing_build_input(self):
+        if self.build_count == 0:
+            print("There is no existing build for this user")
+            return None
+
+        existing_build_name = input("Name of existing build?: ")
+        while existing_build_name not in self.build_list:
+            print("Please enter a build name from the list above")
+            existing_build_name = input("Name of existing build?: ")
+
+        return existing_build_name
 
     def print_build_info(self):
         print("-----------------------")
