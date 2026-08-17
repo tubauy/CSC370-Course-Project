@@ -32,13 +32,14 @@ def get_username(connection):
         try:
             with connection.cursor(buffered=True) as cursor:
                 view_name = f"Configurations_{username_input}"
-                                
+
+                #CANT USE PARAMETERS FOR TABLE NAMES                
                 create_view_query = (
-                    "CREATE OR REPLACE VIEW `%s` AS "
+                    f"CREATE OR REPLACE VIEW `{view_name}` AS "
                     "SELECT * FROM `Configurations` WHERE `username` = %s"
                 )
 
-                cursor.execute(create_view_query, (view_name, username_input))
+                cursor.execute(create_view_query, (username_input,))
         except Exception:
             connection.rollback()
             raise
