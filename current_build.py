@@ -186,7 +186,7 @@ class CurrentBuild:
                 
                 #check if a user already has a configuration with this name
                 #TODO: Ask if user wants to edit current build, or quit without saving (handle from CLI)
-                exists_query = "SELECT 1 FROM `{view_name}` WHERE (`configuration_name` = %s)"
+                exists_query = f"SELECT 1 FROM `{view_name}` WHERE (`configuration_name` = %s)"
                 cursor.execute(exists_query, (self.config_name,))
                 if(cursor.fetchone() is not None):
                     raise ValueError(f"User: {self.user_name} already has a configuration named {self.config_name}")
