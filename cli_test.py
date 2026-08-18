@@ -25,7 +25,16 @@ connection = mysql.connector.connect(
 )
 
 given_username = get_username(connection)
-client = Client(connection=connection, username=given_username)
+connection.close()
+
+connection2 = mysql.connector.connect(
+    host = os.environ["host"],
+    port = os.environ["port"],
+    user = os.environ["user_api"],
+    password = os.environ["password"],
+    database = os.environ["database"]
+)
+client = Client(connection=connection2, username=given_username)
 client.start()
 #connection.close()
 #TODO: MAKE SURE CONNECTION CLOSED
