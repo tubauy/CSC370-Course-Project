@@ -124,7 +124,9 @@ class Client:
 
     def print_boilds_of_current_user(self):
         with self.connection.cursor() as cursor:
-            cursor.execute(f"SELECT * FROM Configurations WHERE username='{self.username}'")
+            view_name = f"Configurations_{self.username}"
+            #cursor.execute(f"SELECT * FROM Configurations WHERE username='{self.username}'")
+            cursor.execute(f"SELECT * FROM `{view_name}`")
             builds = cursor.fetchall()
             print("Build names:")
 

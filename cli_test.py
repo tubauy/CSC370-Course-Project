@@ -3,6 +3,7 @@ import os # for .env
 from current_build import CurrentBuild
 from cli import Client
 from user_login import get_username
+#To use the application, run this file
 
 # load all .env variables into os.environ
 with open(".env", "r") as file:
