@@ -3,8 +3,7 @@ import json
 import sys
 import os
 import mysql.connector
-
-
+from dotenv import load_dotenv
 
 def parse_common_fields(data):
     """Fields shared by every part type — lives on Components."""
@@ -165,16 +164,25 @@ def load_component_from_json(cnx, filepath, part_type):
     return add_component(cnx, part_type, record)
 
 
-
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python load_components.py <PartType> [folder]")
+        print("Usage: python load_components.py <PartType> [limit]")
         print("e.g.:  python load_components.py CPU")
-        print("       python load_components.py GPU ./my_gpu_folder")
+        print("       python load_components.py GPU 10")
         sys.exit(1)
 
     part_type = sys.argv[1]
     folder = ("open-db-json/" + part_type)
+
+    # limit is now a cmd arg, defaults to 20 if not given
+    if len(sys.argv) > 2:
+        try:
+            limit = int(sys.argv[2])
+        except ValueError:
+            print(f"Invalid limit: {sys.argv[2]!r} (must be an integer)")
+            sys.exit(1)
+    else:
+        limit = 20
 
     if part_type not in PART_TYPE_PARSERS:
         print(f"Unknown part type: {part_type}")
@@ -185,19 +193,33 @@ if __name__ == "__main__":
         print(f"No such folder: {folder}")
         sys.exit(1)
 
+    with open(".env", "r") as file:
+        for line in file:
+            line = line.strip()
+
+            if not line or line.startswith("#"):
+                continue
+
+            key, value = line.split("=")
+            os.environ[key.strip()] = value.strip().strip('"').strip("'")
+
     cnx = mysql.connector.connect(
-        host="localhost",
-        port=3306,
-        user="tbu",
-        password="",
-        database="localtest",
+        host = os.environ["host"],
+        port = int(os.environ["port"]),
+        user = os.environ["user"],
+        password = os.environ["password"],
+        database = os.environ["database"]
     )
 
     loaded = 0
     failed = 0
+    skipped = 0
 
     try:
-        for filename in os.listdir(folder):
+        for filename in sorted(os.listdir(folder)):
+            if loaded >= limit:
+                break
+
             if not filename.endswith(".json"):
                 continue
 
@@ -206,6 +228,9 @@ if __name__ == "__main__":
                 load_component_from_json(cnx, filepath, part_type)
                 print(f"Loaded: {filename}")
                 loaded += 1
+            except (ValueError, mysql.connector.errors.IntegrityError) as e:
+                print(f"Skipped: {filename} -> {e}")
+                skipped += 1
             except Exception as e:
                 print(f"Failed: {filename} -> {e}")
                 failed += 1
@@ -214,4 +239,4 @@ if __name__ == "__main__":
     finally:
         cnx.close()
 
-    print(f"\nDone. {loaded} loaded, {failed} failed.")
+    print(f"\nDone. {loaded} loaded, {skipped} skipped, {failed} failed.")
