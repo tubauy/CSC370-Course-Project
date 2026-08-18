@@ -46,5 +46,18 @@ def get_username(connection):
 
         else:
             connection.commit()
-            return username_input
+            try:
+                helper_grant_permission(username_input)
+            except Exception:
+                raise
+            else:
+                return username_input
+
+#grants insert, update, select permissions on Configurations_{username} to API account
+def helper_grant_permission(username, connection):
+    view_name = f"Configurations_{username}"
+    permissions_query = f"GRANT SELECT, UPDATE, INSERT ON `test`.`Configurations_{view_name}` TO csc370editconfig@%"
+    connection.start_transaction(isolation_level = "SERIALIZABLE")
+    with connection.cursor() as cursor:
+        cursor.execute(permissions_query)
 
