@@ -104,6 +104,9 @@ class Client:
             self.print_component_selection(component_str)
 
             selection = input("Select: ")
+            if(len(self.component_cache[component_str]) == 0):
+                print("NO COMPATIBLE PARTS FOUND")
+                continue
             while selection not in self.component_cache[component_str].keys():
                 print("Please select one of the above options")
                 selection = input("Select: ")
