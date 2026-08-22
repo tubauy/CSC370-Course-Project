@@ -65,6 +65,7 @@ class CurrentBuild:
         self.connection = DBconnection
         self.config_name = config_name
         self.user_name = user_name
+        self.view_name = f"Configurations_{self.user_name}"
     
     def __str__(self):
         string_out = f"{self.config_name} \n"
@@ -92,6 +93,8 @@ class CurrentBuild:
             #returns empty list if part already picked (caused bug in CLI)
             #return []
             raise ValueError(f"Already picked part {type_to_output}")
+            #rasing exception could be more informative and helpful than returning empty list for long term mantinence,
+            #   since an empty list would also be returned if there are no compatible parts in category not already picked
             #pass
         else:
             start_query = f"SELECT `{type_to_output}`.`component_id`, `Components`.`name` FROM `{type_to_output}` JOIN `Components` "
@@ -151,9 +154,8 @@ class CurrentBuild:
         #TODO: add transaction here 
         #Note: in source code of mysql-connector python, cursor.__exit__ does not handle exceptions, only runs self.close()
         #   so, have to catch exceptions
-        view_name = f"Configurations_{self.user_name}"
         query = (
-            f"INSERT INTO `{view_name}`(`configuration_name`,`username`,`motherboard_id`,`ram_id`,`cpu_id`,`storage_id`,`gpu_id`,`psu_id`) "
+            f"INSERT INTO `{self.view_name}`(`configuration_name`,`username`,`motherboard_id`,`ram_id`,`cpu_id`,`storage_id`,`gpu_id`,`psu_id`) "
             "VALUES (%(configuration_name)s, %(username)s, %(Motherboards)s, %(RAM)s, %(CPUs)s, %(Storage)s, %(GPUs)s, %(PSUs)s)"
         )
 
@@ -186,7 +188,7 @@ class CurrentBuild:
                 
                 #check if a user already has a configuration with this name
                 #TODO: Ask if user wants to edit current build, or quit without saving (handle from CLI)
-                exists_query = f"SELECT 1 FROM `{view_name}` WHERE (`configuration_name` = %s)"
+                exists_query = f"SELECT 1 FROM `{self.view_name}` WHERE (`configuration_name` = %s)"
                 cursor.execute(exists_query, (self.config_name,))
                 if(cursor.fetchone() is not None):
                     raise ValueError(f"User: {self.user_name} already has a configuration named {self.config_name}")
@@ -223,7 +225,7 @@ class SavedBuild(CurrentBuild):
     def __init__(self, DBconnection, config_name = "Untitled", user_name = "Guest"):
         super().__init__(DBconnection, config_name, user_name)
         #search for existing build in database, if does not exist, error
-        self.view_name = f"Configurations_{self.user_name}"
+        #self.view_name = f"Configurations_{self.user_name}"
         try:
             self.connection.start_transaction(isolation_level = "REPEATABLE READ")
             #using buffered cursor to prevent unfetched results errors
@@ -255,9 +257,6 @@ class SavedBuild(CurrentBuild):
             raise
         else:
             self.connection.commit()
-
-    def test_output(self, category):
-        return self.picked_items_id[category]
     
     def exit_and_save(self):
         #this needs to be update instead of insert
