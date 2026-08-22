@@ -1,0 +1,64 @@
+import mysql.connector
+#takes a connection object
+#returns the username of a user after login
+def get_username(connection):
+    max_username_length = 255
+    username_input = input("ENTER USERNAME: ")
+    #check for illegal charecters?
+    while(len(username_input) > max_username_length or len(username_input) <= 0):
+        print("Please input a valid length username")
+        username_input = input("ENTER USERNAME: ")
+
+    username_exists_query = "SELECT 1 FROM `Users` WHERE `username` = %s"
+    connection.start_transaction(isolation_level = "SERIALIZABLE")
+    try:
+        with connection.cursor(buffered=True) as cursor:
+            cursor.execute(username_exists_query, (username_input,))
+            if(cursor.fetchone() is None):
+                print("USERNAME DOES NOT EXIST, CREATING NEW USER")
+                create_user_query = (
+                    "INSERT INTO `Users` VALUES (%s,%s,NOW())"
+                )
+                email = f"{username_input}@test.com"
+                cursor.execute(create_user_query,(username_input,email)) 
+                #add create view here
+            else:
+                print("USERNAME FOUND")
+    except Exception:
+        connection.rollback()
+        print("ERROR searching Users")
+        raise
+    else:
+        try:
+            with connection.cursor(buffered=True) as cursor:
+                view_name = f"Configurations_{username_input}"
+
+                #CANT USE PARAMETERS FOR TABLE NAMES                
+                create_view_query = (
+                    f"CREATE OR REPLACE VIEW `{view_name}` AS "
+                    "SELECT * FROM `Configurations` WHERE `username` = %s"
+                )
+
+                cursor.execute(create_view_query, (username_input,))
+        except Exception:
+            connection.rollback()
+            raise
+
+        else:
+            connection.commit()
+            try:
+                helper_grant_permission(username_input, connection)
+            except Exception:
+                raise
+            else:
+                return username_input
+
+#grants insert, update, select permissions on Configurations_{username} to API account
+def helper_grant_permission(username, connection):
+    view_name = f"Configurations_{username}"
+    permissions_query = f"GRANT SELECT, UPDATE, INSERT ON `test`.`{view_name}` TO 'csc370editconfig'@'%'"
+    connection.start_transaction(isolation_level = "SERIALIZABLE")
+    with connection.cursor() as cursor:
+        cursor.execute(permissions_query)
+    connection.commit()
+

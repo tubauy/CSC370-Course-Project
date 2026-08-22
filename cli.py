@@ -1,99 +1,166 @@
-def num_selection(upper_bound, escape='e'):
-    """
-    gets input as a number and validates it to be at most at upper bound
-    used in number selection, returns 'e' for exit, can be given custom
-    escape letter.
-    """
-    selection = input("select:")
-    if selection==escape:
-        return 'e'
-    # check if input is valid
-    while not selection.isdigit() or not (0 < int(selection) <= upper_bound):
-        selection = input("select:")
-    return int(selection)
+from current_build import CurrentBuild, SavedBuild
+#TODO: error handling (for wrong name input etc)
+class Client:
+    def __init__(self, connection, username = "Guest"):
+        # selections can be converted to int if needed
+        self.compoment_selections = {"1": "Motherboards", "2": "CPUs", "3": "RAM", "4": "Storage", "5": "GPUs", "6": "PSUs"}
+        self.start_selections = {"1": "Build a PC from scratch", "2": "Edit your existing build"}
+        self.component_cache = {}
+        self._max_build_name_length = 255
+
+        self.connection = connection
+        self.username = username
+        self.current_build = None
+        self.build_count = 0
+        self.build_list = []
+
+    def start(self):
+        print("-----------------------------")
+        print("What do you want to do today?")
+        for key, value in self.start_selections.items():
+            print(f"{key}) {value}")
+        print("-----------------------------")
+
+        selection = input("Select: ")
+        while selection not in self.start_selections.keys():
+            print("Please select one of the above options")
+            selection = input("Select: ")
+        
+        print(f"You chose to {self.start_selections[selection]}")
+        #if we exited edit_build_loop, we can save build
+        if selection == "1":
+            new_build_name = input("Name your build: ")
+            while len(new_build_name) <= 0 or len(new_build_name) > self._max_build_name_length:
+                print("Name length should be from 1 to 255 characters")
+                new_build_name = input("Name your build: ")
+            self.current_build = CurrentBuild(self.connection, config_name=new_build_name,user_name = self.username)
+            self.edit_build_loop()
+            try:
+                self.current_build.exit_and_save()
+            except ValueError as e:
+                print(e)
+                print("BUILD WAS NOT SAVED")
+            else:
+                self.print_build_info()
+
+        elif selection == "2":
+            #"Build edit not yet implemented"
+            # enter username -> list builds -> pick
+            self.print_boilds_of_current_user()
+            existing_build_name = self.get_existing_build_input()
+
+            if existing_build_name == None:
+                print("Error: Cannot select existing build. Exiting")
+                return
+
+            # while len(existing_build_name) <= 0 or len(existing_build_name) > self._max_build_name_length:
+            #     print("Name length should be from 1 to 255 characters")
+            #     existing_build_name = input("Name of existing build: ")
+
+            try:
+                self.current_build = SavedBuild(self.connection, config_name=existing_build_name, user_name=self.username)
+            except ValueError as e:
+                print(e)
+            else:
+                self.edit_build_loop()
+
+                #unessecary duplicated code, refactor later?
+                try:
+                    self.current_build.exit_and_save()
+                except ValueError as e:
+                    print(e)
+                    print("BUILD WAS NOT SAVED")
+                else:
+                    self.print_build_info()
+
+        print("DONE")
+
+    def edit_build_loop(self):
+        while True:
+            print("Select component to choose or edit (or -1 to exit)")
+            for key, value in self.compoment_selections.items():
+                print(f"{key}: {value}")
+
+            selection = input("Select: ")
+            while (selection not in self.compoment_selections.keys() and selection != "-1"):
+                print("Please select one of the above options")
+                selection = input("Select: ")
+            if selection == "-1":
+                return
+
+            component_str = self.compoment_selections[selection]
+
+            # store selected component into cache
+            try:
+                self.component_cache[component_str] = self.current_build.output_compatible(component_str)
+                #   what is the purpose of line 62 and also line 64?
+                self.build_component_cache_dict(component_str)
+            except ValueError:
+                print(f"Already Selected that part. REMOVED {component_str} SELECTION")
+                self.current_build.remove_pick(component_str)
+                continue
+
+            # print(self.component_cache[component_str])
+            self.print_component_selection(component_str)
+
+            selection = input("Select: ")
+            while selection not in self.component_cache[component_str].keys():
+                print("Please select one of the above options")
+                selection = input("Select: ")
+
+            self.current_build.add_part_test(component_str, int(selection))
+            print(f"Selected {component_str} with id {int(selection)}")
+            print()
+
+    def print_component_selection(self, component_str):
+        for cid, name in self.component_cache[component_str].items():
+            print(f"{cid}) {name}")
+
+    def build_component_cache_dict(self, component_str):
+        self.component_cache[component_str] = {}
+        cur_output = self.current_build.output_compatible(component_str)
+        for (cid, name) in cur_output:
+            self.component_cache[component_str][str(cid)] = name
+
+    def print_boilds_of_current_user(self):
+        with self.connection.cursor() as cursor:
+            view_name = f"Configurations_{self.username}"
+            #cursor.execute(f"SELECT * FROM Configurations WHERE username='{self.username}'")
+            cursor.execute(f"SELECT * FROM `{view_name}`")
+            builds = cursor.fetchall()
+            print("Build names:")
+
+            # reset, print out then add to self's build list and count
+            self.build_count = 0
+            self.build_list = []
+            for build in builds:
+                self.build_count += 1
+                self.build_list.append(build[0])
+                print("   ", build[0])
+            self.connection.commit()
+
+    def get_existing_build_input(self):
+        if self.build_count == 0:
+            print("There is no existing build for this user")
+            return None
+
+        existing_build_name = input("Name of existing build?: ")
+        while existing_build_name not in self.build_list:
+            print("Please enter a build name from the list above")
+            existing_build_name = input("Name of existing build?: ")
+
+        return existing_build_name
+
+    def print_build_info(self):
+        print("-----------------------")
+        print("Final build components:")
+        """ for key in self.component_cache.keys():
+            cid = self.current_build.picked_items_id[key]
+            name = self.component_cache[key][str(cid)]
+            print(f"{key}: {name}") """
+        print(self.current_build)
+        print("BUILD SAVED SUCCESSFULLY")
+        print("-----------------------")
 
 
-def get_priority():
-    """
-    priority message, will run in build from scratch,
-    or configurations with more than 1 item missing
-    returns alist of component types to be searched in order
-    using the algorithm we discussed
-    """
 
-    priority_message ="""
-    Please select what component is most important to you:
-    """
-    priorities=[]
-    comps_to_pick = ["motherboard", "cpu", "ram", "storage"]
-
-    print(priority_message)
-    while len(comps_to_pick)>0:
-        print("e: Stop selection.")
-        counter = 1
-        selection = 0
-        for ct in comps_to_pick: # print the option
-            print(counter,": ", ct)
-            counter+=1
-
-        # get selection until valid number provided
-        selection = num_selection(len(comps_to_pick))
-        if selection=='e':
-            break
-        priorities.append(comps_to_pick.pop(selection-1))
-    return priorities
-
-def build_from_scratch_option():
-    priority_list = get_priority()
-    # run the algorithm for the items in the list in order
-
-def search_option():
-    search_funcs = []
-
-    print("""
-    How to you want to search?
-    1: By name.
-    2: By type.
-    3: By compatibility with other item.
-    4: By manufacturer
-    """)
-
-    sel = num_selection(4)
-    if sel=='e':
-        return
-
-    if sel==1:
-        print("name:")
-        # will call search functions here when they are written
-    elif sel==2:
-        print("type:")
-    elif sel==3:
-        print("other item id:")
-    elif sel==4:
-        print("manufacturer name:")
-
-def find_compat_with_config():
-    get_config = [] # replace with the current config
-    print("What items are you upgrading?")
-    priority_list = get_priority()
-    # get items not in the priority list from the config
-    # and then search using the algorithm
-    
-
-def start():
-    # will have the function that will run depending on the selection
-    next_op = [build_from_scratch_option, search_option, find_compat_with_config]
-    
-    print("""
-    What do you want to do today?
-    1: Build a PC from scratch.
-    2: Search items.
-    3: Find compatible items to your configuration.
-    4: Edit your configuration.
-    """)
-    selection = num_selection(len(next_op))
-    if selection=='e':
-        return
-    next_op[selection-1]()
-
-    
