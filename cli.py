@@ -62,6 +62,7 @@ class Client:
             except ValueError as e:
                 print(e)
             else:
+                self.rebuild_component_cache_dict()
                 self.edit_build_loop()
 
                 #unessecary duplicated code, refactor later?
@@ -122,6 +123,19 @@ class Client:
         for (cid, name) in cur_output:
             self.component_cache[component_str][str(cid)] = name
 
+    def rebuild_component_cache_dict(self):
+        with self.connection.cursor() as cursor:
+            for key in self.current_build.picked_items_id:
+                if self.current_build.picked_items_id[key] != None:
+                    cursor.execute(f"SELECT component_id, name FROM Components WHERE component_id = {self.current_build.picked_items_id[key]}")
+                    component_name = cursor.fetchall()[0][1]
+                    if key not in self.component_cache:
+                        self.component_cache[key] = {}
+                    self.component_cache[key][str(self.current_build.picked_items_id[key])] = component_name
+                    # print(component_name)
+            self.connection.commit()
+                
+
     def print_boilds_of_current_user(self):
         with self.connection.cursor() as cursor:
             view_name = f"Configurations_{self.username}"
@@ -154,11 +168,11 @@ class Client:
     def print_build_info(self):
         print("-----------------------")
         print("Final build components:")
-        """ for key in self.component_cache.keys():
+        print("Current build name:", self.current_build.config_name)
+        for key in self.component_cache.keys():
             cid = self.current_build.picked_items_id[key]
             name = self.component_cache[key][str(cid)]
-            print(f"{key}: {name}") """
-        print(self.current_build)
+            print(f"{key}: {name}")
         print("BUILD SAVED SUCCESSFULLY")
         print("-----------------------")
 
